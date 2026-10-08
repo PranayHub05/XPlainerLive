@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>XPlainerLive</title>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/whiteboard.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+
+  <script type="module" src="/js/app.js"></script>
+</head>
+<body>
+
+  <!-- VIEW 1: Landing View -->
+  <div id="landing-view">
+    <header class="landing-header">
+      <div class="logo">
+        <span class="xplainer">XPlainer</span><span class="live">Live</span>
+      </div>
+      <nav class="landing-nav hidden-mobile">
+        <a href="#overview">Overview</a>
+        <a href="#features">Features</a>
+      </nav>
+      <button id="create-room-btn" class="btn-primary">
+        Launch Canvas
+      </button>
+    </header>
+
+    <section id="overview" class="hero-section">
+      <div class="ambient-glow-1"></div>
+      <div class="ambient-glow-2"></div>
+      <div class="ambient-glow-3"></div>
+      <div class="dot-grid-overlay"></div>
+
+      <div class="live-badge">
+        <span class="status-dot" style="width:8px;height:8px;background:var(--secondary);border-radius:50%;display:inline-block;animation:pulse 2s infinite;"></span>
+        Real-time multiplayer • No account needed
+      </div>
+
+      <h1>Explain ideas visually,<br><span class="gradient-text">together.</span></h1>
+      <p class="hero-subtitle">A high-performance collaborative whiteboard for instant brainstorming and explanations.</p>
+      
+      <div class="hero-buttons">
+        <button id="create-room-hero-btn" class="btn-primary" onclick="document.getElementById('create-room-btn').click()">
+          <span class="material-symbols-outlined">bolt</span>
+          Create Instant Room
+        </button>
+        <button id="landing-join-btn" class="btn-secondary">
+          <span class="material-symbols-outlined">pin</span>
+          Join with Code
+        </button>
+      </div>
+
+      <div class="stats-strip">
+        <div class="stat-card">60 FPS</div>
+        <div class="stat-card">&lt; 15 ms</div>
+        <div class="stat-card">0 Logins</div>
+        <div class="stat-card">E2E Sync</div>
+      </div>
+    </section>
+
+    <div class="canvas-showcase">
+      <div class="showcase-grid"></div>
+      <div class="showcase-node" style="top:50px; left:100px;">Project Flow</div>
+      <div class="showcase-node" style="top:150px; left:250px;">Database</div>
+      <div class="showcase-cursor" style="top:100px; left:180px;">
+        <svg viewBox="0 0 24 24" fill="var(--secondary)"><path d="M7 2l12 11.2-5.8.5 3.3 7.3-2.2 1-3.2-7.4-4.4 4.8z"/></svg>
+        <span>Alex</span>
+      </div>
+    </div>
+
+    <section id="quick-join" class="quick-join-section">
+      <div class="quick-join-card">
+        <h2>Have a Room Code?</h2>
+        <div id="landing-code-container" class="landing-code-container">
+          <input type="text" class="landing-code-input" maxlength="1">
+          <input type="text" class="landing-code-input" maxlength="1">
+          <input type="text" class="landing-code-input" maxlength="1">
+          <input type="text" class="landing-code-input" maxlength="1">
+          <input type="text" class="landing-code-input" maxlength="1">
+          <input type="text" class="landing-code-input" maxlength="1">
+        </div>
+        <button id="landing-join-submit" class="btn-primary w-full">Join Canvas</button>
+        <button id="landing-shuffle-code" class="btn-icon" style="margin:8px auto 0;" title="Shuffle Code"><span class="material-symbols-outlined">shuffle</span></button>
+      </div>
+    </section>
+
+    <section id="features" class="features-section">
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon"><span class="material-symbols-outlined">draw</span></div>
+          <h3>Multiplayer Whiteboard</h3>
+          <p>Draw, shape, and type together in real-time with sub-millisecond sync.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><span class="material-symbols-outlined">tag</span></div>
+          <h3>Instant 6-Character Rooms</h3>
+          <p>Share a simple code. No links to copy, no invites to manage.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><span class="material-symbols-outlined">chat_bubble_outline</span></div>
+          <h3>Integrated Lightweight Chat</h3>
+          <p>Discuss ideas right in the canvas without switching apps.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><span class="material-symbols-outlined">electric_bolt</span></div>
+          <h3>Zero Setup, High Performance</h3>
+          <p>Built with vanilla JS and WebSockets for ultimate speed.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="how-it-works-section">
+      <h2>How it works</h2>
+      <div class="steps-container">
+        <div class="step">
+          <div class="step-number">01</div>
+          <h4>Create Room</h4>
+          <p>Click launch to instantly spin up a session.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">02</div>
+          <h4>Share Code</h4>
+          <p>Give the 6-character code to your team.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">03</div>
+          <h4>Collaborate</h4>
+          <p>Start drawing and typing together instantly.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <h2>Start drawing in 5 seconds flat.</h2>
+      <div style="display:flex;justify-content:center;gap:16px;margin-bottom:24px;">
+        <button class="btn-primary" onclick="document.getElementById('create-room-btn').click()">Launch Now</button>
+        <button class="btn-secondary" onclick="document.getElementById('landing-join-btn').click()">Join Existing</button>
+      </div>
+      <div style="display:flex;justify-content:center;gap:24px;color:var(--on-surface-variant);font-size:var(--fs-label-sm);">
+        <span>✓ 100% Free</span>
+        <span>✓ No Download</span>
+        <span>✓ Ephemeral Privacy</span>
+      </div>
+    </section>
+
+    <footer class="landing-footer">
+      <div class="logo" style="font-weight:700;"><span style="color:var(--primary)">XPlainer</span><span style="color:var(--secondary)">Live</span></div>
+      <div>Explain. Draw. Discuss. Together.</div>
+      <div>&copy; 2026</div>
+    </footer>
+  </div>
+
+  <!-- VIEW 2: Workspace View -->
+  <div id="workspace-view" class="hidden">
+    
+    <div class="topbar">
+      <div class="topbar-left">
+        <div style="font-weight:700;font-size:18px;" class="logo"><span style="color:var(--primary)">XPlainer</span><span style="color:var(--secondary)">Live</span></div>
+        <div id="room-code-display" class="room-code-chip" title="Click to copy">------</div>
+        <button id="copy-code-btn" class="btn-icon" title="Copy code"><span class="material-symbols-outlined">content_copy</span></button>
+        <div id="connection-status" class="badge badge-connected">
+          <span class="status-dot"></span><span id="connection-text">Connected</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div id="participants-container" class="avatar-stack"></div>
+        <button id="share-btn" class="btn-primary"><span class="material-symbols-outlined">person_add</span> Share Room</button>
+        <button id="leave-btn" class="btn-danger"><span class="material-symbols-outlined">logout</span> Leave</button>
+      </div>
+    </div>
+
+    <div id="canvas-container" class="canvas-grid-bg">
+      <canvas id="whiteboard-canvas"></canvas>
+      <div id="cursors-layer"></div>
+      <div id="empty-state" class="canvas-empty-state">
+        <span class="material-symbols-outlined">gesture</span>
+        <p>Your canvas is ready.</p>
+        <p>Start drawing, explaining, or brainstorming together.</p>
+      </div>
+    </div>
+
+    <aside class="toolbar" id="toolbar">
+      <button id="tool-select" class="btn-icon active" title="Select (V)" data-tool="select"><span class="material-symbols-outlined">near_me</span></button>
+      <button id="tool-hand" class="btn-icon" title="Hand / Pan (H)" data-tool="hand"><span class="material-symbols-outlined">pan_tool</span></button>
+      <button id="tool-pen" class="btn-icon" title="Pen (P)" data-tool="pen"><span class="material-symbols-outlined">edit</span></button>
+      <button id="tool-eraser" class="btn-icon" title="Eraser (E)" data-tool="eraser"><span class="material-symbols-outlined">ink_eraser</span></button>
+      <button id="tool-line" class="btn-icon" title="Line (L)" data-tool="line"><span class="material-symbols-outlined">horizontal_rule</span></button>
+      <button id="tool-arrow" class="btn-icon" title="Arrow (A)" data-tool="arrow"><span class="material-symbols-outlined">arrow_forward</span></button>
+      <button id="tool-rect" class="btn-icon" title="Rectangle (R)" data-tool="rectangle"><span class="material-symbols-outlined">crop_square</span></button>
+      <button id="tool-ellipse" class="btn-icon" title="Ellipse (O)" data-tool="ellipse"><span class="material-symbols-outlined">radio_button_unchecked</span></button>
+      <button id="tool-diamond" class="btn-icon" title="Diamond (D)" data-tool="diamond"><span class="material-symbols-outlined">diamond</span></button>
+      <button id="tool-text" class="btn-icon" title="Text (T)" data-tool="text"><span class="material-symbols-outlined">title</span></button>
+      <div class="toolbar-separator"></div>
+      <button id="undo-btn" class="btn-icon" title="Undo (Ctrl+Z)"><span class="material-symbols-outlined">undo</span></button>
+      <button id="redo-btn" class="btn-icon" title="Redo (Ctrl+Shift+Z)"><span class="material-symbols-outlined">redo</span></button>
+      <button id="zoom-in" class="btn-icon" title="Zoom In"><span class="material-symbols-outlined">zoom_in</span></button>
+      <button id="zoom-out" class="btn-icon" title="Zoom Out"><span class="material-symbols-outlined">zoom_out</span></button>
+      <button id="fit-btn" class="btn-icon" title="Fit to Screen"><span class="material-symbols-outlined">center_focus_strong</span></button>
+      <button id="grid-toggle" class="btn-icon" title="Toggle Grid (G)"><span class="material-symbols-outlined">grid_4x4</span></button>
+    </aside>
+
+    <div class="bottombar-container">
+      <div class="bottombar">
+        <button id="zoom-out-bottom" class="btn-icon"><span class="material-symbols-outlined">remove</span></button>
+        <span id="zoom-display" style="font-weight:600;min-width:48px;text-align:center;">100%</span>
+        <button id="zoom-in-bottom" class="btn-icon"><span class="material-symbols-outlined">add</span></button>
+        <div style="width:1px;height:24px;background:var(--surface-container-highest);"></div>
+        <button id="fit-btn-bottom" class="btn-icon" title="Fit"><span class="material-symbols-outlined">center_focus_strong</span></button>
+        <div style="width:1px;height:24px;background:var(--surface-container-highest);"></div>
+        <div style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;">
+          Grid: <span id="grid-label">ON</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="export-bar">
+      <button id="export-png" class="btn-secondary"><span class="material-symbols-outlined">download</span> Export PNG</button>
+      <button id="export-json" class="btn-secondary">Export JSON</button>
+      <button id="clear-btn" class="btn-danger"><span class="material-symbols-outlined">delete_sweep</span> Clear Board</button>
+    </div>
+
+    <aside id="chat-panel" class="chat-panel">
+      <div class="chat-header">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:8px;height:8px;background:var(--secondary);border-radius:50%;"></span>
+          Room Chat
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span id="chat-online-count" style="font-size:12px;color:var(--on-surface-variant);font-weight:400;">0 live</span>
+          <button id="chat-collapse" class="btn-icon" style="width:28px;height:28px;"><span class="material-symbols-outlined">keyboard_arrow_down</span></button>
+        </div>
+      </div>
+      <div id="chat-messages" class="chat-messages">
+        <div class="chat-empty-state" style="text-align:center;color:var(--on-surface-variant);font-size:14px;margin:auto;">No messages yet. Start the discussion.</div>
+      </div>
+      <div class="chat-input-area">
+        <form id="chat-form">
+          <input id="chat-input" class="chat-input" placeholder="Message..." autocomplete="off">
+          <button id="chat-send" type="submit" class="chat-send-btn"><span class="material-symbols-outlined" style="font-size:16px;">send</span></button>
+        </form>
+      </div>
+    </aside>
+
+    <button id="chat-expand" class="chat-expand-btn hidden">
+      <span class="material-symbols-outlined">chat</span> Room Chat <span id="chat-badge" class="badge badge-connected hidden">0</span>
+    </button>
+
+    <div id="style-panel" class="style-panel hidden">
+      <div class="style-panel-row">
+        <span>Stroke</span>
+        <input type="color" id="stroke-color" value="#a4c9ff">
+      </div>
+      <div class="style-panel-row">
+        <span>Fill</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="no-fill" checked title="No Fill">
+          <input type="color" id="fill-color" value="#transparent">
+        </div>
+      </div>
+      <div class="style-panel-row">
+        <span>Width</span>
+        <input type="range" id="stroke-width" min="1" max="12" value="2">
+      </div>
+      <div class="style-panel-row">
+        <span>Opacity</span>
+        <input type="range" id="opacity-slider" min="0.1" max="1" step="0.1" value="1">
+      </div>
+      <div class="style-panel-row">
+        <span>Font Size</span>
+        <input type="number" id="font-size" min="8" max="72" value="16" style="width:60px;background:var(--surface-container);color:white;border:none;border-radius:4px;padding:2px 4px;">
+      </div>
+      <div class="color-presets">
+        <button class="color-preset-btn" style="background:#a4c9ff" data-color="#a4c9ff"></button>
+        <button class="color-preset-btn" style="background:#7bd1fa" data-color="#7bd1fa"></button>
+        <button class="color-preset-btn" style="background:#19aee8" data-color="#19aee8"></button>
+        <button class="color-preset-btn" style="background:#60a5fa" data-color="#60a5fa"></button>
+        <button class="color-preset-btn" style="background:#a78bfa" data-color="#a78bfa"></button>
+        <button class="color-preset-btn" style="background:#f472b6" data-color="#f472b6"></button>
+        <button class="color-preset-btn" style="background:#fb923c" data-color="#fb923c"></button>
+        <button class="color-preset-btn" style="background:#facc15" data-color="#facc15"></button>
+        <button class="color-preset-btn" style="background:#4ade80" data-color="#4ade80"></button>
+        <button class="color-preset-btn" style="background:#f87171" data-color="#f87171"></button>
+        <button class="color-preset-btn" style="background:#ffffff" data-color="#ffffff"></button>
+        <button class="color-preset-btn" style="background:#8b919d" data-color="#8b919d"></button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODALS -->
+
+  <div id="join-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <div style="font-weight:700;font-size:18px;" class="logo"><span style="color:var(--primary)">XPlainer</span><span style="color:var(--secondary)">Live</span></div>
+        <div class="badge" style="background:rgba(255,255,255,0.1);"><span class="material-symbols-outlined" style="font-size:16px;">lock</span> E2E Encrypted</div>
+      </div>
+      <h2 style="margin:0 0 8px 0;font-size:24px;">Join Collaborative Room</h2>
+      <p style="color:var(--on-surface-variant);margin:0 0 24px 0;">Enter the 6-character room code shared by your host.</p>
+      
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <label style="font-weight:600;font-size:14px;">Room Code</label>
+        <button id="join-paste-btn" class="btn-secondary" style="padding:4px 8px;font-size:12px;"><span class="material-symbols-outlined" style="font-size:14px;">content_paste</span> Paste</button>
+      </div>
+      <div id="join-code-container" class="join-code-container">
+        <input type="text" class="join-code-input" maxlength="1">
+        <input type="text" class="join-code-input" maxlength="1">
+        <input type="text" class="join-code-input" maxlength="1">
+        <input type="text" class="join-code-input" maxlength="1">
+        <input type="text" class="join-code-input" maxlength="1">
+        <input type="text" class="join-code-input" maxlength="1">
+      </div>
+      
+      <label style="font-weight:600;font-size:14px;margin-top:16px;display:block;">Nickname</label>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
+        <div class="avatar" id="join-avatar-preview">?</div>
+        <input id="join-nickname" class="input-field" placeholder="Enter your nickname" maxlength="24">
+      </div>
+      
+      <div style="margin:24px 0;font-size:12px;color:var(--on-surface-variant);text-align:center;">
+        <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;">shield</span> Private ephemeral session • No login required
+      </div>
+      
+      <div style="display:flex;gap:16px;">
+        <button id="join-back" class="btn-secondary" style="flex:1;">Back</button>
+        <button id="join-submit" class="btn-primary" style="flex:2;">Join Room (------)</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="nickname-modal" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width:400px;text-align:center;">
+      <h2 style="margin:0 0 8px 0;">Choose Your Nickname</h2>
+      <p style="color:var(--on-surface-variant);margin:0 0 24px 0;">How should others see you?</p>
+      <input id="creator-nickname-input" class="input-field" placeholder="Nickname" style="margin-bottom:24px;text-align:center;font-size:18px;">
+      <button id="creator-nickname-submit" class="btn-primary w-full">Enter Room</button>
+    </div>
+  </div>
+
+  <div id="clear-modal" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width:400px;text-align:center;">
+      <span class="material-symbols-outlined" style="font-size:48px;color:var(--error);margin-bottom:16px;">warning</span>
+      <h2 style="margin:0 0 8px 0;">Clear entire board?</h2>
+      <p style="color:var(--on-surface-variant);margin:0 0 24px 0;">This will remove all drawings for everyone.</p>
+      <div style="display:flex;gap:16px;">
+        <button id="clear-cancel" class="btn-secondary" style="flex:1;">Cancel</button>
+        <button id="clear-confirm" class="btn-danger" style="flex:1;">Clear Board</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+</body>
+</html>

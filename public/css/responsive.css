@@ -1,0 +1,155 @@
+/* Media Queries */
+
+@media (max-width: 1024px) {
+  :root {
+    --fs-display-hero: var(--fs-display-hero-mobile);
+    --lh-display-hero: var(--lh-display-hero-mobile);
+    --ls-display-hero: var(--ls-display-hero-mobile);
+    
+    --gutter-desktop: var(--gutter);
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .how-it-works-section .steps-container {
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  /* Toolbar horizontal at bottom */
+  .toolbar {
+    left: 50%;
+    top: auto;
+    bottom: 80px;
+    transform: translateX(-50%);
+    flex-direction: row;
+    padding: 8px 16px;
+    width: auto;
+    max-width: 90vw;
+    overflow-x: auto;
+  }
+  .toolbar-separator {
+    width: 2px;
+    height: 24px;
+    margin: 0 4px;
+  }
+
+  .chat-panel {
+    width: 100%;
+    right: 0;
+    bottom: 0;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    max-height: 50vh;
+  }
+
+  .export-bar {
+    top: auto;
+    bottom: 140px;
+    right: 50%;
+    transform: translateX(50%);
+  }
+
+  .bottombar-container {
+    display: none; /* Hide complex bottom bar on tablet */
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 100px var(--gutter) 60px;
+  }
+  
+  .hero-buttons {
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .stats-strip {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .landing-code-container .landing-code-input {
+    width: 40px;
+    height: 48px;
+    font-size: 16px;
+  }
+
+  /* Workspace changes */
+  .topbar {
+    padding: 0 var(--space-sm);
+  }
+  
+  .topbar .logo {
+    display: none;
+  }
+  
+  #participants-container {
+    display: none;
+  }
+
+  .modal-content {
+    padding: var(--space-md);
+    border-radius: var(--radius-lg);
+    max-width: 95vw;
+  }
+  
+  .join-code-container .join-code-input {
+    width: 36px;
+    height: 44px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section h1 {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .feature-card {
+    padding: var(--space-md);
+  }
+  
+  .topbar {
+    height: 56px;
+  }
+  
+  .room-code-chip {
+    font-size: 14px;
+  }
+  
+  .toolbar {
+    bottom: 16px;
+    padding: 6px;
+    gap: 4px;
+  }
+  .btn-icon {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Touch specifics */
+@media (hover: none) and (pointer: coarse) {
+  button, a {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  .btn-icon {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .chat-input {
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+  
+  .input-field, .code-input, .landing-code-input, .join-code-input {
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+}
