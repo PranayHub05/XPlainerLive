@@ -73,7 +73,7 @@ export function exportSVG() {
 <rect x="${minX}" y="${minY}" width="${width}" height="${height}" fill="#090e1a"/>\n`;
   
   for (const obj of objects) {
-    const stroke = obj.stroke || '#a4c9ff';
+    const stroke = obj.stroke || '#F4FF24';
     const fill = obj.fill || 'transparent';
     const strokeWidth = obj.strokeWidth || 2;
     const opacity = obj.opacity ?? 1;

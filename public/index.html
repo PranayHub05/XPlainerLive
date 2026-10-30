@@ -3,18 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>XPlainerLive</title>
-  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <title>XPlainerLive — Minimalist Real-Time Collaborative Whiteboard</title>
+  <meta name="description" content="Instant real-time multiplayer vector whiteboard with zero login. Explain ideas visually with WebRTC DataChannels.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
 
   <link rel="stylesheet" href="/css/variables.css">
   <link rel="stylesheet" href="/css/base.css">
-  <link rel="stylesheet" href="/css/layout.css">
   <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/layout.css">
   <link rel="stylesheet" href="/css/whiteboard.css">
   <link rel="stylesheet" href="/css/responsive.css">
 
@@ -22,278 +23,746 @@
 </head>
 <body>
 
-  <!-- VIEW 1: Landing View -->
+  <!-- VIEW 1: Landing Page -->
   <div id="landing-view">
+    
+    <!-- Background Animated Visual Layer & Depth of Field Lighting -->
+    <div id="bg-canvas-container">
+      <canvas id="bg-particle-canvas"></canvas>
+      <div class="bg-video-overlay"></div>
+    </div>
+    
+    <div class="ambient-glow-cobalt-1"></div>
+    <div class="ambient-glow-lime-1"></div>
+    <div class="ambient-glow-cobalt-2"></div>
+    <div class="ambient-glow-lime-2"></div>
+    <div class="dot-grid-overlay"></div>
+
+    <!-- Header Navigation -->
     <header class="landing-header">
-      <div class="logo">
-        <span class="xplainer">XPlainer</span><span class="live">Live</span>
-      </div>
-      <nav class="landing-nav hidden-mobile">
+      <a href="#overview" class="logo">
+        <div class="logo-badge">
+          <!-- Monogram Icon SVG -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M4 4L20 20" stroke="#F4FF24" stroke-width="3" stroke-linecap="round"/>
+            <path d="M20 4L4 20" stroke="#1558C9" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="3" fill="#F4FF24"/>
+          </svg>
+        </div>
+        <div><span class="xplainer">XPlainer</span><span class="live">Live</span></div>
+      </a>
+      
+      <nav class="landing-nav">
         <a href="#overview">Overview</a>
+        <a href="#create-room-section" class="nav-highlight">Create Room</a>
+        <a href="#join-room-section">Join Room</a>
         <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
       </nav>
-      <button id="create-room-btn" class="btn-primary">
-        Launch Canvas
-      </button>
+
+      <div class="landing-header-actions">
+        <button id="create-room-btn" class="btn-lime">
+          <span class="material-symbols-outlined">bolt</span>
+          <span>Launch Canvas</span>
+        </button>
+      </div>
     </header>
 
+    <!-- Hero Section -->
     <section id="overview" class="hero-section">
-      <div class="ambient-glow-1"></div>
-      <div class="ambient-glow-2"></div>
-      <div class="ambient-glow-3"></div>
-      <div class="dot-grid-overlay"></div>
-
       <div class="live-badge">
-        <span class="status-dot" style="width:8px;height:8px;background:var(--secondary);border-radius:50%;display:inline-block;animation:pulse 2s infinite;"></span>
-        Real-time multiplayer • No account needed
+        <span class="status-beacon"></span>
+        <span>Sub-15ms WebRTC • Zero Login • 100% Ephemeral</span>
       </div>
 
-      <h1>Explain ideas visually,<br><span class="gradient-text">together.</span></h1>
-      <p class="hero-subtitle">A high-performance collaborative whiteboard for instant brainstorming and explanations.</p>
+      <h1>
+        Explain complex ideas visually,<br>
+        <span class="gradient-text">together in real-time.</span>
+      </h1>
+      
+      <p class="hero-subtitle">
+        A minimalist, high-velocity collaborative whiteboard with sub-millisecond sync.
+        No passwords, no tracking, and zero account setup.
+      </p>
       
       <div class="hero-buttons">
-        <button id="create-room-hero-btn" class="btn-primary" onclick="document.getElementById('create-room-btn').click()">
-          <span class="material-symbols-outlined">bolt</span>
-          Create Instant Room
+        <button id="create-room-hero-btn" class="btn-lime hero-cta-btn">
+          <span class="material-symbols-outlined">add_circle</span>
+          Create a Room
         </button>
-        <button id="landing-join-btn" class="btn-secondary">
+        <button id="landing-join-btn" class="btn-secondary hero-cta-btn">
           <span class="material-symbols-outlined">pin</span>
           Join with Code
         </button>
       </div>
 
       <div class="stats-strip">
-        <div class="stat-card">60 FPS</div>
-        <div class="stat-card">&lt; 15 ms</div>
-        <div class="stat-card">0 Logins</div>
-        <div class="stat-card">E2E Sync</div>
+        <div class="stat-card">
+          <span class="material-symbols-outlined stat-icon">speed</span>
+          <span>60 FPS Vector Canvas</span>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-outlined stat-icon">bolt</span>
+          <span>&lt; 15ms P2P Sync</span>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-outlined stat-icon">lock_open_right</span>
+          <span>0 Login Requirements</span>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-outlined stat-icon">hub</span>
+          <span>Direct WebRTC Mesh</span>
+        </div>
       </div>
     </section>
 
-    <div class="canvas-showcase">
-      <div class="showcase-grid"></div>
-      <div class="showcase-node" style="top:50px; left:100px;">Project Flow</div>
-      <div class="showcase-node" style="top:150px; left:250px;">Database</div>
-      <div class="showcase-cursor" style="top:100px; left:180px;">
-        <svg viewBox="0 0 24 24" fill="var(--secondary)"><path d="M7 2l12 11.2-5.8.5 3.3 7.3-2.2 1-3.2-7.4-4.4 4.8z"/></svg>
-        <span>Alex</span>
+    <!-- Depth of Field Interactive Showcase Preview -->
+    <div class="showcase-wrapper">
+      <div class="canvas-showcase">
+        <div class="showcase-grid"></div>
+        
+        <div class="showcase-topbar">
+          <div class="showcase-chip">
+            <span class="status-beacon"></span>
+            <span>ROOM // XP-9042 • 3 PEERS LIVE</span>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <div class="avatar" style="background:#1558C9;border-color:#F4FF24;">A</div>
+            <div class="avatar" style="background:#F4FF24;color:#030407;">E</div>
+            <div class="avatar" style="background:#38bdf8;">K</div>
+          </div>
+        </div>
+
+        <!-- SVG Vector Drawing on Showcase -->
+        <svg class="showcase-svg-layer" viewBox="0 0 1000 420" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="laserGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#1558C9" stop-opacity="0.8"/>
+              <stop offset="100%" stop-color="#F4FF24" stop-opacity="0.8"/>
+            </linearGradient>
+            <filter id="laserGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <path d="M190 145 C 320 100, 390 220, 520 180" stroke="url(#laserGrad)" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="6,4" filter="url(#laserGlow)"/>
+          <path d="M570 215 C 650 260, 710 180, 780 230" stroke="#1558C9" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="520" cy="180" r="5" fill="#F4FF24"/>
+          <circle cx="190" cy="145" r="5" fill="#1558C9"/>
+          <circle cx="780" cy="230" r="5" fill="#F4FF24"/>
+        </svg>
+
+        <!-- Simulated Floating Workspace Nodes -->
+        <div class="showcase-node" style="top:115px; left:80px;">
+          <span class="node-dot"></span>
+          <span>Authentication Flow</span>
+        </div>
+        
+        <div class="showcase-node node-lime" style="top:150px; left:440px;">
+          <span class="node-dot"></span>
+          <span>Real-time Mesh Engine</span>
+        </div>
+
+        <div class="showcase-node" style="top:210px; right:90px;">
+          <span class="node-dot"></span>
+          <span>Vector Storage</span>
+        </div>
+
+        <!-- Simulated Cursors with Labels -->
+        <div class="showcase-cursor cursor-alex" style="top:190px; left:480px; animation: floatSlow 5s infinite;">
+          <svg viewBox="0 0 24 24"><path d="M4 0l16 12-7.5 1.5 4 8.5-3 1.5-4-8.5-5.5 5.5v-20z"/></svg>
+          <span>Alex (Host)</span>
+        </div>
+
+        <div class="showcase-cursor cursor-elena" style="top:110px; left:220px; animation: floatReverse 6s infinite;">
+          <svg viewBox="0 0 24 24"><path d="M4 0l16 12-7.5 1.5 4 8.5-3 1.5-4-8.5-5.5 5.5v-20z"/></svg>
+          <span>Elena</span>
+        </div>
+
+        <!-- Mini Mock Tools -->
+        <div class="showcase-mini-toolbar">
+          <div class="showcase-mini-tool active"><span class="material-symbols-outlined" style="font-size:16px;">edit</span></div>
+          <div class="showcase-mini-tool"><span class="material-symbols-outlined" style="font-size:16px;">crop_square</span></div>
+          <div class="showcase-mini-tool"><span class="material-symbols-outlined" style="font-size:16px;">arrow_forward</span></div>
+          <div class="showcase-mini-tool"><span class="material-symbols-outlined" style="font-size:16px;">title</span></div>
+        </div>
       </div>
     </div>
 
-    <section id="quick-join" class="quick-join-section">
-      <div class="quick-join-card">
-        <h2>Have a Room Code?</h2>
-        <div id="landing-code-container" class="landing-code-container">
-          <input type="text" class="landing-code-input" maxlength="1">
-          <input type="text" class="landing-code-input" maxlength="1">
-          <input type="text" class="landing-code-input" maxlength="1">
-          <input type="text" class="landing-code-input" maxlength="1">
-          <input type="text" class="landing-code-input" maxlength="1">
-          <input type="text" class="landing-code-input" maxlength="1">
+    <!-- SEPARATE SECTIONS FOR CREATING A ROOM AND JOINING A ROOM -->
+    <div class="room-actions-wrapper">
+      
+      <!-- ========================================== -->
+      <!-- SECTION 1: CREATE A ROOM                  -->
+      <!-- ========================================== -->
+      <section id="create-room-section" class="create-room-section">
+        <div class="section-header">
+          <span class="section-tag">Instant Provisioning</span>
+          <h2>Create a New Room</h2>
+          <p>Spin up an ephemeral whiteboard room in milliseconds. Zero login, zero signup, zero tracking.</p>
         </div>
-        <button id="landing-join-submit" class="btn-primary w-full">Join Canvas</button>
-        <button id="landing-shuffle-code" class="btn-icon" style="margin:8px auto 0;" title="Shuffle Code"><span class="material-symbols-outlined">shuffle</span></button>
-      </div>
-    </section>
 
+        <div class="split-action-card create-card">
+          <!-- Form Side -->
+          <div class="action-form-side">
+            <h3>Start an Instant Session</h3>
+            <p class="desc">
+              Your room is created locally and connected through peer-to-peer WebSockets. You will get a unique 6-character code to share with anyone.
+            </p>
+
+            <div class="form-group">
+              <label for="landing-creator-nickname" class="form-label">Choose Your Nickname</label>
+              <div class="nickname-input-wrap">
+                <input id="landing-creator-nickname" class="input-field" placeholder="e.g. CobaltVoyager" maxlength="24">
+                <button id="btn-randomize-create" class="btn-randomize" type="button" title="Generate Random Alias">
+                  <span class="material-symbols-outlined" style="font-size:16px;">casino</span>
+                  <span>Random</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="feature-check-list">
+              <span><span class="material-symbols-outlined check-icon">check_circle</span> No email or passwords required</span>
+              <span><span class="material-symbols-outlined check-icon">check_circle</span> 6-Character unambiguous room code</span>
+              <span><span class="material-symbols-outlined check-icon">check_circle</span> Real-time live cursors &amp; presence</span>
+              <span><span class="material-symbols-outlined check-icon">check_circle</span> Ephemeral memory (auto-cleans on exit)</span>
+            </div>
+
+            <button id="instant-create-submit" class="btn-lime w-full" style="padding:14px;font-size:16px;">
+              <span class="material-symbols-outlined">bolt</span>
+              <span>Launch Instant Room (Zero Login)</span>
+            </button>
+
+            <div class="privacy-notice">
+              <span class="material-symbols-outlined">verified_user</span>
+              <span>100% Free • End-to-End P2P Synced • No Account Needed</span>
+            </div>
+          </div>
+
+          <!-- Graphic Side -->
+          <div class="action-graphic-side">
+            <!-- Bespoke SVG Illustration: Instant Room Node Spawning -->
+            <svg class="action-svg-illustration" viewBox="0 0 320 280" fill="none">
+              <!-- Radial Core Ambient Glow -->
+              <circle cx="160" cy="140" r="100" fill="url(#coreGlow)" opacity="0.3"/>
+              
+              <!-- Orbital Rings -->
+              <circle cx="160" cy="140" r="75" stroke="#1558C9" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.7"/>
+              <circle cx="160" cy="140" r="110" stroke="#F4FF24" stroke-width="1" stroke-dasharray="2 8" opacity="0.4"/>
+              
+              <!-- Data Vector Beams -->
+              <path d="M160 140 L80 60" stroke="#F4FF24" stroke-width="2" stroke-linecap="round"/>
+              <path d="M160 140 L240 70" stroke="#1558C9" stroke-width="2" stroke-linecap="round"/>
+              <path d="M160 140 L90 210" stroke="#1558C9" stroke-width="2" stroke-linecap="round"/>
+              <path d="M160 140 L235 215" stroke="#F4FF24" stroke-width="2" stroke-linecap="round"/>
+
+              <!-- Outer Participant Nodes -->
+              <circle cx="80" cy="60" r="14" fill="#0a0f1c" stroke="#F4FF24" stroke-width="2"/>
+              <text x="80" y="64" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700" fill="#F4FF24" text-anchor="middle">P1</text>
+
+              <circle cx="240" cy="70" r="14" fill="#0a0f1c" stroke="#1558C9" stroke-width="2"/>
+              <text x="240" y="74" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">P2</text>
+
+              <circle cx="90" cy="210" r="14" fill="#0a0f1c" stroke="#1558C9" stroke-width="2"/>
+              <text x="90" y="214" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">P3</text>
+
+              <circle cx="235" cy="215" r="14" fill="#0a0f1c" stroke="#F4FF24" stroke-width="2"/>
+              <text x="235" y="219" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700" fill="#F4FF24" text-anchor="middle">P4</text>
+
+              <!-- Central Host Spawning Core -->
+              <circle cx="160" cy="140" r="32" fill="#030407" stroke="#F4FF24" stroke-width="2.5"/>
+              <polygon points="160,125 174,136 170,153 150,153 146,136" fill="#1558C9" opacity="0.6"/>
+              <circle cx="160" cy="140" r="8" fill="#F4FF24"/>
+              
+              <!-- Sparkles -->
+              <path d="M160 100 L160 106 M160 174 L160 180 M120 140 L126 140 M194 140 L200 140" stroke="#F4FF24" stroke-width="2" stroke-linecap="round"/>
+
+              <defs>
+                <radialGradient id="coreGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(160 140) rotate(90) scale(100)">
+                  <stop stop-color="#1558C9" stop-opacity="0.8"/>
+                  <stop offset="0.6" stop-color="#F4FF24" stop-opacity="0.3"/>
+                  <stop offset="1" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SECTION 2: JOIN A ROOM                    -->
+      <!-- ========================================== -->
+      <section id="join-room-section" class="join-room-section">
+        <div class="section-header">
+          <span class="section-tag">Direct Synchronization</span>
+          <h2>Join an Existing Room</h2>
+          <p>Received a 6-character code from a colleague or tutor? Enter it below to join the canvas immediately.</p>
+        </div>
+
+        <div class="split-action-card join-card">
+          <!-- Form Side -->
+          <div class="action-form-side">
+            <h3>Enter 6-Character Room Code</h3>
+            <p class="desc">
+              No account creation needed. Enter the code and your display name to jump directly into the live session.
+            </p>
+
+            <div class="join-code-row">
+              <label class="form-label" style="margin-bottom:0;">Session Code</label>
+              <div style="display:flex;gap:8px;">
+                <button id="landing-paste-code" class="btn-secondary" style="padding:4px 10px;font-size:12px;">
+                  <span class="material-symbols-outlined" style="font-size:14px;">content_paste</span>
+                  <span>Paste</span>
+                </button>
+                <button id="landing-shuffle-code" class="btn-secondary" style="padding:4px 10px;font-size:12px;" title="Test Code">
+                  <span class="material-symbols-outlined" style="font-size:14px;">shuffle</span>
+                  <span>Sample</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 6 Digits Container -->
+            <div id="landing-code-container" class="landing-code-container">
+              <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
+              <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
+              <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
+              <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
+              <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
+              <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
+            </div>
+
+            <div class="form-group" style="margin-top:20px;">
+              <label for="landing-join-nickname" class="form-label">Your Nickname</label>
+              <div class="nickname-input-wrap">
+                <input id="landing-join-nickname" class="input-field" placeholder="e.g. NeonVoyager" maxlength="24">
+                <button id="btn-randomize-join" class="btn-randomize" type="button" title="Generate Random Alias">
+                  <span class="material-symbols-outlined" style="font-size:16px;">casino</span>
+                  <span>Random</span>
+                </button>
+              </div>
+            </div>
+
+            <button id="landing-join-submit" class="btn-cobalt w-full" style="padding:14px;font-size:16px;margin-top:12px;">
+              <span class="material-symbols-outlined">login</span>
+              <span>Join Canvas (------)</span>
+            </button>
+
+            <div class="privacy-notice">
+              <span class="material-symbols-outlined">lock</span>
+              <span>Encrypted WebRTC P2P Data Channel • No Login Required</span>
+            </div>
+          </div>
+
+          <!-- Graphic Side -->
+          <div class="action-graphic-side">
+            <!-- Bespoke SVG Illustration: Peer Mesh Connection -->
+            <svg class="action-svg-illustration" viewBox="0 0 320 280" fill="none">
+              <!-- Background Grid -->
+              <pattern id="meshGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <circle cx="2" cy="2" r="1" fill="#1558C9" opacity="0.3"/>
+              </pattern>
+              <rect width="320" height="280" fill="url(#meshGrid)"/>
+
+              <!-- Connection Lines -->
+              <line x1="60" y1="140" x2="160" y2="80" stroke="#1558C9" stroke-width="2" stroke-dasharray="4 4"/>
+              <line x1="60" y1="140" x2="160" y2="200" stroke="#1558C9" stroke-width="2" stroke-dasharray="4 4"/>
+              <line x1="160" y1="80" x2="260" y2="140" stroke="#F4FF24" stroke-width="2"/>
+              <line x1="160" y1="200" x2="260" y2="140" stroke="#F4FF24" stroke-width="2"/>
+              <line x1="160" y1="80" x2="160" y2="200" stroke="#1558C9" stroke-width="1.5"/>
+
+              <!-- Peer 1 (Connecting) -->
+              <circle cx="60" cy="140" r="24" fill="#030407" stroke="#1558C9" stroke-width="2"/>
+              <circle cx="60" cy="140" r="12" fill="#1558C9" opacity="0.4"/>
+              <text x="60" y="144" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">YOU</text>
+
+              <!-- Data Lock Badge in Center -->
+              <rect x="135" y="120" width="50" height="40" rx="8" fill="#0a0f1c" stroke="#F4FF24" stroke-width="1.5"/>
+              <path d="M152 133 V129 A8 8 0 0 1 168 129 V133" stroke="#F4FF24" stroke-width="2" fill="none"/>
+              <rect x="146" y="133" width="28" height="20" rx="4" fill="#1558C9"/>
+              <circle cx="160" cy="142" r="2.5" fill="#F4FF24"/>
+
+              <!-- Peer 2 (Relay Top) -->
+              <circle cx="160" cy="80" r="18" fill="#030407" stroke="#1558C9" stroke-width="2"/>
+              <circle cx="160" cy="80" r="8" fill="#1558C9"/>
+
+              <!-- Peer 3 (Relay Bottom) -->
+              <circle cx="160" cy="200" r="18" fill="#030407" stroke="#1558C9" stroke-width="2"/>
+              <circle cx="160" cy="200" r="8" fill="#1558C9"/>
+
+              <!-- Destination Room Host -->
+              <circle cx="260" cy="140" r="28" fill="#030407" stroke="#F4FF24" stroke-width="2.5"/>
+              <circle cx="260" cy="140" r="16" fill="#F4FF24" opacity="0.3"/>
+              <text x="260" y="144" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#F4FF24" text-anchor="middle">HOST</text>
+
+              <!-- Animated Pulse Marker -->
+              <circle cx="210" cy="110" r="4" fill="#F4FF24">
+                <animate attributeName="opacity" values="0.2;1;0.2" dur="2s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="110" cy="170" r="4" fill="#1558C9">
+                <animate attributeName="opacity" values="1;0.2;1" dur="2s" repeatCount="indefinite"/>
+              </circle>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Features Section -->
     <section id="features" class="features-section">
+      <div class="section-header">
+        <span class="section-tag">High Performance</span>
+        <h2>Built for Instant Explanations</h2>
+        <p>Engineered with zero third-party framework bloat for maximum responsiveness and rock-solid synchronization.</p>
+      </div>
+
       <div class="features-grid">
         <div class="feature-card">
-          <div class="feature-icon"><span class="material-symbols-outlined">draw</span></div>
-          <h3>Multiplayer Whiteboard</h3>
-          <p>Draw, shape, and type together in real-time with sub-millisecond sync.</p>
+          <div class="feature-icon-wrap">
+            <span class="material-symbols-outlined">bolt</span>
+          </div>
+          <h3>Sub-15ms WebRTC Sync</h3>
+          <p>Drawing vectors, shapes, and movements sync across peer DataChannels directly with near-zero latency.</p>
         </div>
+
         <div class="feature-card">
-          <div class="feature-icon"><span class="material-symbols-outlined">tag</span></div>
-          <h3>Instant 6-Character Rooms</h3>
-          <p>Share a simple code. No links to copy, no invites to manage.</p>
+          <div class="feature-icon-wrap icon-cobalt">
+            <span class="material-symbols-outlined">draw</span>
+          </div>
+          <h3>Vector Whiteboard Engine</h3>
+          <p>Freehand drawing, rectangles, arrows, ellipses, diamonds, text, and eraser powered by 60FPS canvas renderer.</p>
         </div>
+
         <div class="feature-card">
-          <div class="feature-icon"><span class="material-symbols-outlined">chat_bubble_outline</span></div>
-          <h3>Integrated Lightweight Chat</h3>
-          <p>Discuss ideas right in the canvas without switching apps.</p>
+          <div class="feature-icon-wrap">
+            <span class="material-symbols-outlined">no_accounts</span>
+          </div>
+          <h3>Zero Login Requirements</h3>
+          <p>No passwords, no account creation, no cookies, no tracking. Sessions exist only while participants are present.</p>
         </div>
+
         <div class="feature-card">
-          <div class="feature-icon"><span class="material-symbols-outlined">electric_bolt</span></div>
-          <h3>Zero Setup, High Performance</h3>
-          <p>Built with vanilla JS and WebSockets for ultimate speed.</p>
+          <div class="feature-icon-wrap icon-cobalt">
+            <span class="material-symbols-outlined">pin</span>
+          </div>
+          <h3>Instant 6-Character Codes</h3>
+          <p>Ambiguity-free alphanumeric codes (e.g. <code>X7K9Q2</code>) that eliminate confusion between O/0 and I/1.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-wrap">
+            <span class="material-symbols-outlined">chat_bubble</span>
+          </div>
+          <h3>Integrated Team Chat</h3>
+          <p>Collapsible in-canvas chat tray with real-time presence indicators, unread badges, and XSS sanitization.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-wrap icon-cobalt">
+            <span class="material-symbols-outlined">download</span>
+          </div>
+          <h3>High-Res Vector Export</h3>
+          <p>Export your collaborative sessions to transparent PNG, scalable vector SVG, or complete scene graph JSON.</p>
         </div>
       </div>
     </section>
 
-    <section class="how-it-works-section">
-      <h2>How it works</h2>
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works-section">
+      <div class="section-header">
+        <span class="section-tag">Frictionless Workflow</span>
+        <h2>How It Works</h2>
+        <p>From zero to drawing collaboratively in 3 simple steps.</p>
+      </div>
+
       <div class="steps-container">
-        <div class="step">
-          <div class="step-number">01</div>
-          <h4>Create Room</h4>
-          <p>Click launch to instantly spin up a session.</p>
+        <div class="step-card">
+          <div class="step-number-badge">01</div>
+          <h4>Create or Enter Code</h4>
+          <p>Click Launch Canvas or enter a 6-character room code from your host. No signups or logins required.</p>
         </div>
-        <div class="step">
-          <div class="step-number">02</div>
-          <h4>Share Code</h4>
-          <p>Give the 6-character code to your team.</p>
+
+        <div class="step-card">
+          <div class="step-number-badge">02</div>
+          <h4>P2P Mesh Handshake</h4>
+          <p>WebSockets establish instantaneous WebRTC DataChannel connections directly between all participants.</p>
         </div>
-        <div class="step">
-          <div class="step-number">03</div>
-          <h4>Collaborate</h4>
-          <p>Start drawing and typing together instantly.</p>
+
+        <div class="step-card">
+          <div class="step-number-badge">03</div>
+          <h4>Explain &amp; Understand</h4>
+          <p>Draw vectors, pan infinitely, chat live, and build shared visual understanding together in real-time.</p>
         </div>
       </div>
     </section>
 
+    <!-- Bottom CTA Section -->
     <section class="cta-section">
       <h2>Start drawing in 5 seconds flat.</h2>
-      <div style="display:flex;justify-content:center;gap:16px;margin-bottom:24px;">
-        <button class="btn-primary" onclick="document.getElementById('create-room-btn').click()">Launch Now</button>
-        <button class="btn-secondary" onclick="document.getElementById('landing-join-btn').click()">Join Existing</button>
+      <p>Instant collaboration. No downloads, no credit cards, zero friction.</p>
+      
+      <div class="cta-actions">
+        <a href="#create-room-section" class="btn-lime hero-cta-btn">
+          <span class="material-symbols-outlined">bolt</span>
+          <span>Create Instant Room</span>
+        </a>
+        <a href="#join-room-section" class="btn-secondary hero-cta-btn">
+          <span class="material-symbols-outlined">pin</span>
+          <span>Join Existing Room</span>
+        </a>
       </div>
-      <div style="display:flex;justify-content:center;gap:24px;color:var(--on-surface-variant);font-size:var(--fs-label-sm);">
-        <span>✓ 100% Free</span>
-        <span>✓ No Download</span>
-        <span>✓ Ephemeral Privacy</span>
+
+      <div class="guarantee-strip">
+        <span><span class="check">✓</span> 100% Free &amp; Open</span>
+        <span><span class="check">✓</span> Zero Account / Zero Passwords</span>
+        <span><span class="check">✓</span> Ephemeral Privacy Guarantee</span>
       </div>
     </section>
 
+    <!-- Footer -->
     <footer class="landing-footer">
-      <div class="logo" style="font-weight:700;"><span style="color:var(--primary)">XPlainer</span><span style="color:var(--secondary)">Live</span></div>
-      <div>Explain. Draw. Discuss. Together.</div>
-      <div>&copy; 2026</div>
+      <div class="footer-logo">
+        <span class="xplainer">XPlainer</span><span class="live">Live</span>
+      </div>
+      <div>Designed with Midnight Black, Electric Cobalt Blue &amp; Acid Lime.</div>
+      <div>&copy; 2026 XPlainerLive • Pure Vanilla WebRTC Whiteboard</div>
     </footer>
   </div>
 
-  <!-- VIEW 2: Workspace View -->
+  <!-- VIEW 2: Workspace Whiteboard View -->
   <div id="workspace-view" class="hidden">
     
+    <!-- Topbar -->
     <div class="topbar">
       <div class="topbar-left">
-        <div style="font-weight:700;font-size:18px;" class="logo"><span style="color:var(--primary)">XPlainer</span><span style="color:var(--secondary)">Live</span></div>
-        <div id="room-code-display" class="room-code-chip" title="Click to copy">------</div>
-        <button id="copy-code-btn" class="btn-icon" title="Copy code"><span class="material-symbols-outlined">content_copy</span></button>
+        <div class="logo" style="display:flex;align-items:center;gap:8px;">
+          <div class="logo-badge" style="width:26px;height:26px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M4 4L20 20" stroke="#F4FF24" stroke-width="3" stroke-linecap="round"/>
+              <path d="M20 4L4 20" stroke="#1558C9" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="logo-text" style="font-weight:800;font-size:16px;">
+            <span style="color:#ffffff;">XPlainer</span><span style="color:var(--lime);">Live</span>
+          </span>
+        </div>
+
+        <div id="room-code-display" class="room-code-chip" title="Click to copy room code">------</div>
+        <button id="copy-code-btn" class="btn-icon" title="Copy Room Code">
+          <span class="material-symbols-outlined">content_copy</span>
+        </button>
+        
         <div id="connection-status" class="badge badge-connected">
-          <span class="status-dot"></span><span id="connection-text">Connected</span>
+          <span class="status-dot"></span>
+          <span id="connection-text">Live Synced</span>
         </div>
       </div>
+
       <div class="topbar-right">
         <div id="participants-container" class="avatar-stack"></div>
-        <button id="share-btn" class="btn-primary"><span class="material-symbols-outlined">person_add</span> Share Room</button>
-        <button id="leave-btn" class="btn-danger"><span class="material-symbols-outlined">logout</span> Leave</button>
+        <button id="share-btn" class="btn-primary" style="padding:8px 14px;font-size:13px;">
+          <span class="material-symbols-outlined" style="font-size:18px;">share</span>
+          <span>Share</span>
+        </button>
+        <button id="leave-btn" class="btn-danger" style="padding:8px 14px;font-size:13px;">
+          <span class="material-symbols-outlined" style="font-size:18px;">logout</span>
+          <span>Leave</span>
+        </button>
       </div>
     </div>
 
+    <!-- Canvas Container -->
     <div id="canvas-container" class="canvas-grid-bg">
       <canvas id="whiteboard-canvas"></canvas>
       <div id="cursors-layer"></div>
+      
       <div id="empty-state" class="canvas-empty-state">
-        <span class="material-symbols-outlined">gesture</span>
-        <p>Your canvas is ready.</p>
-        <p>Start drawing, explaining, or brainstorming together.</p>
+        <span class="material-symbols-outlined empty-icon">draw</span>
+        <h3>Your canvas is ready.</h3>
+        <p>Pick a tool from the toolbar to start explaining or brainstorming.</p>
       </div>
     </div>
 
+    <!-- Floating Tools Toolbar -->
     <aside class="toolbar" id="toolbar">
-      <button id="tool-select" class="btn-icon active" title="Select (V)" data-tool="select"><span class="material-symbols-outlined">near_me</span></button>
-      <button id="tool-hand" class="btn-icon" title="Hand / Pan (H)" data-tool="hand"><span class="material-symbols-outlined">pan_tool</span></button>
-      <button id="tool-pen" class="btn-icon" title="Pen (P)" data-tool="pen"><span class="material-symbols-outlined">edit</span></button>
-      <button id="tool-eraser" class="btn-icon" title="Eraser (E)" data-tool="eraser"><span class="material-symbols-outlined">ink_eraser</span></button>
-      <button id="tool-line" class="btn-icon" title="Line (L)" data-tool="line"><span class="material-symbols-outlined">horizontal_rule</span></button>
-      <button id="tool-arrow" class="btn-icon" title="Arrow (A)" data-tool="arrow"><span class="material-symbols-outlined">arrow_forward</span></button>
-      <button id="tool-rect" class="btn-icon" title="Rectangle (R)" data-tool="rectangle"><span class="material-symbols-outlined">crop_square</span></button>
-      <button id="tool-ellipse" class="btn-icon" title="Ellipse (O)" data-tool="ellipse"><span class="material-symbols-outlined">radio_button_unchecked</span></button>
-      <button id="tool-diamond" class="btn-icon" title="Diamond (D)" data-tool="diamond"><span class="material-symbols-outlined">diamond</span></button>
-      <button id="tool-text" class="btn-icon" title="Text (T)" data-tool="text"><span class="material-symbols-outlined">title</span></button>
+      <button id="tool-select" class="btn-icon active" title="Select (V)" data-tool="select">
+        <span class="material-symbols-outlined">near_me</span>
+      </button>
+      <button id="tool-hand" class="btn-icon" title="Hand / Pan (H)" data-tool="hand">
+        <span class="material-symbols-outlined">pan_tool</span>
+      </button>
+      <button id="tool-pen" class="btn-icon" title="Pen (P)" data-tool="pen">
+        <span class="material-symbols-outlined">edit</span>
+      </button>
+      <button id="tool-eraser" class="btn-icon" title="Eraser (E)" data-tool="eraser">
+        <span class="material-symbols-outlined">ink_eraser</span>
+      </button>
+      <button id="tool-line" class="btn-icon" title="Line (L)" data-tool="line">
+        <span class="material-symbols-outlined">horizontal_rule</span>
+      </button>
+      <button id="tool-arrow" class="btn-icon" title="Arrow (A)" data-tool="arrow">
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
+      <button id="tool-rect" class="btn-icon" title="Rectangle (R)" data-tool="rectangle">
+        <span class="material-symbols-outlined">crop_square</span>
+      </button>
+      <button id="tool-ellipse" class="btn-icon" title="Ellipse (O)" data-tool="ellipse">
+        <span class="material-symbols-outlined">radio_button_unchecked</span>
+      </button>
+      <button id="tool-diamond" class="btn-icon" title="Diamond (D)" data-tool="diamond">
+        <span class="material-symbols-outlined">diamond</span>
+      </button>
+      <button id="tool-text" class="btn-icon" title="Text (T)" data-tool="text">
+        <span class="material-symbols-outlined">title</span>
+      </button>
+      
       <div class="toolbar-separator"></div>
-      <button id="undo-btn" class="btn-icon" title="Undo (Ctrl+Z)"><span class="material-symbols-outlined">undo</span></button>
-      <button id="redo-btn" class="btn-icon" title="Redo (Ctrl+Shift+Z)"><span class="material-symbols-outlined">redo</span></button>
-      <button id="zoom-in" class="btn-icon" title="Zoom In"><span class="material-symbols-outlined">zoom_in</span></button>
-      <button id="zoom-out" class="btn-icon" title="Zoom Out"><span class="material-symbols-outlined">zoom_out</span></button>
-      <button id="fit-btn" class="btn-icon" title="Fit to Screen"><span class="material-symbols-outlined">center_focus_strong</span></button>
-      <button id="grid-toggle" class="btn-icon" title="Toggle Grid (G)"><span class="material-symbols-outlined">grid_4x4</span></button>
+      
+      <button id="undo-btn" class="btn-icon" title="Undo (Ctrl+Z)">
+        <span class="material-symbols-outlined">undo</span>
+      </button>
+      <button id="redo-btn" class="btn-icon" title="Redo (Ctrl+Shift+Z)">
+        <span class="material-symbols-outlined">redo</span>
+      </button>
+      <button id="zoom-in" class="btn-icon" title="Zoom In">
+        <span class="material-symbols-outlined">zoom_in</span>
+      </button>
+      <button id="zoom-out" class="btn-icon" title="Zoom Out">
+        <span class="material-symbols-outlined">zoom_out</span>
+      </button>
+      <button id="fit-btn" class="btn-icon" title="Fit to Screen">
+        <span class="material-symbols-outlined">center_focus_strong</span>
+      </button>
+      <button id="grid-toggle" class="btn-icon" title="Toggle Grid (G)">
+        <span class="material-symbols-outlined">grid_4x4</span>
+      </button>
     </aside>
 
+    <!-- Bottom Zoom / View Dock -->
     <div class="bottombar-container">
       <div class="bottombar">
-        <button id="zoom-out-bottom" class="btn-icon"><span class="material-symbols-outlined">remove</span></button>
-        <span id="zoom-display" style="font-weight:600;min-width:48px;text-align:center;">100%</span>
-        <button id="zoom-in-bottom" class="btn-icon"><span class="material-symbols-outlined">add</span></button>
-        <div style="width:1px;height:24px;background:var(--surface-container-highest);"></div>
-        <button id="fit-btn-bottom" class="btn-icon" title="Fit"><span class="material-symbols-outlined">center_focus_strong</span></button>
-        <div style="width:1px;height:24px;background:var(--surface-container-highest);"></div>
-        <div style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;">
-          Grid: <span id="grid-label">ON</span>
+        <button id="zoom-out-bottom" class="btn-icon" title="Zoom Out">
+          <span class="material-symbols-outlined">remove</span>
+        </button>
+        <span id="zoom-display" style="font-weight:700;font-family:var(--ff-mono);min-width:48px;text-align:center;color:var(--lime);">100%</span>
+        <button id="zoom-in-bottom" class="btn-icon" title="Zoom In">
+          <span class="material-symbols-outlined">add</span>
+        </button>
+        
+        <div style="width:1px;height:20px;background:rgba(21, 88, 201, 0.3);"></div>
+        
+        <button id="fit-btn-bottom" class="btn-icon" title="Reset View">
+          <span class="material-symbols-outlined">center_focus_strong</span>
+        </button>
+        
+        <div style="width:1px;height:20px;background:rgba(21, 88, 201, 0.3);"></div>
+        
+        <div style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;color:var(--on-surface-variant);">
+          Grid: <span id="grid-label" style="color:var(--lime);font-family:var(--ff-mono);">ON</span>
         </div>
       </div>
     </div>
 
+    <!-- Top Right Export & Clear Bar -->
     <div class="export-bar">
-      <button id="export-png" class="btn-secondary"><span class="material-symbols-outlined">download</span> Export PNG</button>
-      <button id="export-json" class="btn-secondary">Export JSON</button>
-      <button id="clear-btn" class="btn-danger"><span class="material-symbols-outlined">delete_sweep</span> Clear Board</button>
+      <button id="export-png" class="btn-secondary" style="padding:8px 14px;font-size:13px;">
+        <span class="material-symbols-outlined" style="font-size:18px;">image</span>
+        <span>PNG</span>
+      </button>
+      <button id="export-json" class="btn-secondary" style="padding:8px 14px;font-size:13px;">
+        <span class="material-symbols-outlined" style="font-size:18px;">code</span>
+        <span>JSON</span>
+      </button>
+      <button id="clear-btn" class="btn-danger" style="padding:8px 14px;font-size:13px;">
+        <span class="material-symbols-outlined" style="font-size:18px;">delete_sweep</span>
+        <span>Clear</span>
+      </button>
     </div>
 
+    <!-- Live Chat Panel -->
     <aside id="chat-panel" class="chat-panel">
       <div class="chat-header">
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="width:8px;height:8px;background:var(--secondary);border-radius:50%;"></span>
-          Room Chat
+          <span class="status-beacon"></span>
+          <span style="font-weight:700;color:#ffffff;">Room Chat</span>
         </div>
         <div style="display:flex;align-items:center;gap:12px;">
-          <span id="chat-online-count" style="font-size:12px;color:var(--on-surface-variant);font-weight:400;">0 live</span>
-          <button id="chat-collapse" class="btn-icon" style="width:28px;height:28px;"><span class="material-symbols-outlined">keyboard_arrow_down</span></button>
+          <span id="chat-online-count" style="font-size:12px;color:var(--lime);font-family:var(--ff-mono);">0 live</span>
+          <button id="chat-collapse" class="btn-icon" style="width:28px;height:28px;">
+            <span class="material-symbols-outlined">keyboard_arrow_down</span>
+          </button>
         </div>
       </div>
+      
       <div id="chat-messages" class="chat-messages">
-        <div class="chat-empty-state" style="text-align:center;color:var(--on-surface-variant);font-size:14px;margin:auto;">No messages yet. Start the discussion.</div>
+        <div class="chat-empty-state" style="text-align:center;color:var(--on-surface-muted);font-size:13px;margin:auto;">
+          No messages yet. Send a message to the room.
+        </div>
       </div>
+      
       <div class="chat-input-area">
         <form id="chat-form">
-          <input id="chat-input" class="chat-input" placeholder="Message..." autocomplete="off">
-          <button id="chat-send" type="submit" class="chat-send-btn"><span class="material-symbols-outlined" style="font-size:16px;">send</span></button>
+          <input id="chat-input" class="chat-input" placeholder="Type a message..." autocomplete="off">
+          <button id="chat-send" type="submit" class="chat-send-btn">
+            <span class="material-symbols-outlined" style="font-size:16px;">send</span>
+          </button>
         </form>
       </div>
     </aside>
 
     <button id="chat-expand" class="chat-expand-btn hidden">
-      <span class="material-symbols-outlined">chat</span> Room Chat <span id="chat-badge" class="badge badge-connected hidden">0</span>
+      <span class="material-symbols-outlined" style="color:var(--lime);">chat</span>
+      <span>Room Chat</span>
+      <span id="chat-badge" class="badge badge-connected hidden">0</span>
     </button>
 
+    <!-- Contextual Style Panel -->
     <div id="style-panel" class="style-panel hidden">
+      <div class="style-panel-header">Shape Styles</div>
+      
       <div class="style-panel-row">
         <span>Stroke</span>
-        <input type="color" id="stroke-color" value="#a4c9ff">
+        <input type="color" id="stroke-color" value="#F4FF24">
       </div>
+      
       <div class="style-panel-row">
         <span>Fill</span>
         <div style="display:flex;align-items:center;gap:8px;">
           <input type="checkbox" id="no-fill" checked title="No Fill">
-          <input type="color" id="fill-color" value="#transparent">
+          <input type="color" id="fill-color" value="#1558C9">
         </div>
       </div>
+      
       <div class="style-panel-row">
         <span>Width</span>
-        <input type="range" id="stroke-width" min="1" max="12" value="2">
+        <input type="range" id="stroke-width" min="1" max="16" value="2">
       </div>
+      
       <div class="style-panel-row">
         <span>Opacity</span>
-        <input type="range" id="opacity-slider" min="0.1" max="1" step="0.1" value="1">
+        <input type="range" id="opacity-slider" min="0.1" max="1" step="0.05" value="1">
       </div>
+      
       <div class="style-panel-row">
         <span>Font Size</span>
-        <input type="number" id="font-size" min="8" max="72" value="16" style="width:60px;background:var(--surface-container);color:white;border:none;border-radius:4px;padding:2px 4px;">
+        <input type="number" id="font-size" min="10" max="72" value="16" style="width:60px;">
       </div>
+      
+      <!-- Curated Theme Presets -->
       <div class="color-presets">
-        <button class="color-preset-btn" style="background:#a4c9ff" data-color="#a4c9ff"></button>
-        <button class="color-preset-btn" style="background:#7bd1fa" data-color="#7bd1fa"></button>
-        <button class="color-preset-btn" style="background:#19aee8" data-color="#19aee8"></button>
-        <button class="color-preset-btn" style="background:#60a5fa" data-color="#60a5fa"></button>
-        <button class="color-preset-btn" style="background:#a78bfa" data-color="#a78bfa"></button>
-        <button class="color-preset-btn" style="background:#f472b6" data-color="#f472b6"></button>
-        <button class="color-preset-btn" style="background:#fb923c" data-color="#fb923c"></button>
-        <button class="color-preset-btn" style="background:#facc15" data-color="#facc15"></button>
-        <button class="color-preset-btn" style="background:#4ade80" data-color="#4ade80"></button>
-        <button class="color-preset-btn" style="background:#f87171" data-color="#f87171"></button>
-        <button class="color-preset-btn" style="background:#ffffff" data-color="#ffffff"></button>
-        <button class="color-preset-btn" style="background:#8b919d" data-color="#8b919d"></button>
+        <button class="color-preset-btn active" style="background:#F4FF24;" data-color="#F4FF24" title="Acid Lime"></button>
+        <button class="color-preset-btn" style="background:#1558C9;" data-color="#1558C9" title="Electric Cobalt"></button>
+        <button class="color-preset-btn" style="background:#38bdf8;" data-color="#38bdf8" title="Sky Blue"></button>
+        <button class="color-preset-btn" style="background:#ffffff;" data-color="#ffffff" title="White"></button>
+        <button class="color-preset-btn" style="background:#a78bfa;" data-color="#a78bfa" title="Purple"></button>
+        <button class="color-preset-btn" style="background:#f472b6;" data-color="#f472b6" title="Pink"></button>
+        <button class="color-preset-btn" style="background:#fbbf24;" data-color="#fbbf24" title="Amber"></button>
+        <button class="color-preset-btn" style="background:#34d399;" data-color="#34d399" title="Emerald"></button>
+        <button class="color-preset-btn" style="background:#f87171;" data-color="#f87171" title="Coral"></button>
+        <button class="color-preset-btn" style="background:#94a3b8;" data-color="#94a3b8" title="Slate"></button>
       </div>
     </div>
 
@@ -301,66 +770,84 @@
 
   <!-- MODALS -->
 
+  <!-- Join Modal (Used for direct ?room=XXXXXX URLs or header link) -->
   <div id="join-modal" class="modal-overlay hidden">
     <div class="modal-content">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
-        <div style="font-weight:700;font-size:18px;" class="logo"><span style="color:var(--primary)">XPlainer</span><span style="color:var(--secondary)">Live</span></div>
-        <div class="badge" style="background:rgba(255,255,255,0.1);"><span class="material-symbols-outlined" style="font-size:16px;">lock</span> E2E Encrypted</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div style="font-weight:800;font-size:20px;" class="logo">
+          <span style="color:#ffffff;">XPlainer</span><span style="color:var(--lime);">Live</span>
+        </div>
+        <div class="badge badge-connected">
+          <span class="material-symbols-outlined" style="font-size:16px;">lock</span>
+          <span>Zero Login</span>
+        </div>
       </div>
-      <h2 style="margin:0 0 8px 0;font-size:24px;">Join Collaborative Room</h2>
-      <p style="color:var(--on-surface-variant);margin:0 0 24px 0;">Enter the 6-character room code shared by your host.</p>
+
+      <h2 style="margin:0 0 6px 0;font-size:22px;color:#ffffff;">Join Whiteboard Room</h2>
+      <p style="color:var(--on-surface-variant);margin:0 0 20px 0;font-size:14px;">Enter the 6-character room code shared by your host.</p>
       
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <label style="font-weight:600;font-size:14px;">Room Code</label>
-        <button id="join-paste-btn" class="btn-secondary" style="padding:4px 8px;font-size:12px;"><span class="material-symbols-outlined" style="font-size:14px;">content_paste</span> Paste</button>
+        <label class="form-label" style="margin-bottom:0;">Room Code</label>
+        <button id="join-paste-btn" class="btn-secondary" style="padding:4px 10px;font-size:12px;">
+          <span class="material-symbols-outlined" style="font-size:14px;">content_paste</span>
+          <span>Paste</span>
+        </button>
       </div>
+      
       <div id="join-code-container" class="join-code-container">
-        <input type="text" class="join-code-input" maxlength="1">
-        <input type="text" class="join-code-input" maxlength="1">
-        <input type="text" class="join-code-input" maxlength="1">
-        <input type="text" class="join-code-input" maxlength="1">
-        <input type="text" class="join-code-input" maxlength="1">
-        <input type="text" class="join-code-input" maxlength="1">
+        <input type="text" class="join-code-input" maxlength="1" autocomplete="off">
+        <input type="text" class="join-code-input" maxlength="1" autocomplete="off">
+        <input type="text" class="join-code-input" maxlength="1" autocomplete="off">
+        <input type="text" class="join-code-input" maxlength="1" autocomplete="off">
+        <input type="text" class="join-code-input" maxlength="1" autocomplete="off">
+        <input type="text" class="join-code-input" maxlength="1" autocomplete="off">
       </div>
       
-      <label style="font-weight:600;font-size:14px;margin-top:16px;display:block;">Nickname</label>
-      <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
-        <div class="avatar" id="join-avatar-preview">?</div>
-        <input id="join-nickname" class="input-field" placeholder="Enter your nickname" maxlength="24">
+      <label class="form-label" style="margin-top:16px;">Your Nickname</label>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
+        <div class="avatar" id="join-avatar-preview" style="background:var(--cobalt);color:#ffffff;">?</div>
+        <input id="join-nickname" class="input-field" placeholder="Enter nickname" maxlength="24">
       </div>
       
-      <div style="margin:24px 0;font-size:12px;color:var(--on-surface-variant);text-align:center;">
-        <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;">shield</span> Private ephemeral session • No login required
+      <div style="margin:20px 0;font-size:12px;color:var(--on-surface-muted);text-align:center;">
+        <span class="material-symbols-outlined" style="font-size:14px;">shield</span>
+        Private ephemeral session • No login or account required
       </div>
       
-      <div style="display:flex;gap:16px;">
-        <button id="join-back" class="btn-secondary" style="flex:1;">Back</button>
-        <button id="join-submit" class="btn-primary" style="flex:2;">Join Room (------)</button>
+      <div style="display:flex;gap:12px;">
+        <button id="join-back" class="btn-secondary" style="flex:1;">Cancel</button>
+        <button id="join-submit" class="btn-lime" style="flex:2;">Join Room (------)</button>
       </div>
     </div>
   </div>
 
+  <!-- Nickname Modal for Creator (Fallback) -->
   <div id="nickname-modal" class="modal-overlay hidden">
-    <div class="modal-content" style="max-width:400px;text-align:center;">
-      <h2 style="margin:0 0 8px 0;">Choose Your Nickname</h2>
-      <p style="color:var(--on-surface-variant);margin:0 0 24px 0;">How should others see you?</p>
-      <input id="creator-nickname-input" class="input-field" placeholder="Nickname" style="margin-bottom:24px;text-align:center;font-size:18px;">
-      <button id="creator-nickname-submit" class="btn-primary w-full">Enter Room</button>
+    <div class="modal-content" style="max-width:420px;text-align:center;">
+      <h2 style="margin:0 0 8px 0;color:#ffffff;">Enter Display Nickname</h2>
+      <p style="color:var(--on-surface-variant);margin:0 0 20px 0;font-size:14px;">No account needed. How should peers see your live cursor?</p>
+      <input id="creator-nickname-input" class="input-field" placeholder="Nickname" style="margin-bottom:20px;text-align:center;font-size:18px;font-weight:700;">
+      <button id="creator-nickname-submit" class="btn-lime w-full" style="padding:12px;font-size:16px;">
+        <span class="material-symbols-outlined">bolt</span>
+        <span>Enter Room</span>
+      </button>
     </div>
   </div>
 
+  <!-- Clear Board Confirmation Modal -->
   <div id="clear-modal" class="modal-overlay hidden">
-    <div class="modal-content" style="max-width:400px;text-align:center;">
-      <span class="material-symbols-outlined" style="font-size:48px;color:var(--error);margin-bottom:16px;">warning</span>
-      <h2 style="margin:0 0 8px 0;">Clear entire board?</h2>
-      <p style="color:var(--on-surface-variant);margin:0 0 24px 0;">This will remove all drawings for everyone.</p>
-      <div style="display:flex;gap:16px;">
+    <div class="modal-content" style="max-width:420px;text-align:center;">
+      <span class="material-symbols-outlined" style="font-size:48px;color:var(--error);margin-bottom:12px;">delete_sweep</span>
+      <h2 style="margin:0 0 8px 0;color:#ffffff;">Clear entire board?</h2>
+      <p style="color:var(--on-surface-variant);margin:0 0 24px 0;font-size:14px;">This will remove all drawings for everyone currently connected to this room.</p>
+      <div style="display:flex;gap:12px;">
         <button id="clear-cancel" class="btn-secondary" style="flex:1;">Cancel</button>
-        <button id="clear-confirm" class="btn-danger" style="flex:1;">Clear Board</button>
+        <button id="clear-confirm" class="btn-danger" style="flex:1;">Clear All</button>
       </div>
     </div>
   </div>
 
+  <!-- Floating Toast Notifications -->
   <div id="toast-container" class="toast-container"></div>
 
 </body>

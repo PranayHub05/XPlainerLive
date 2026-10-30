@@ -15,8 +15,16 @@ export function generateUserId() {
   return 'user_' + Math.random().toString(16).slice(2, 10);
 }
 
+export function getRandomNickname() {
+  const adjectives = ['Neon', 'Cobalt', 'Lime', 'Cyber', 'Quantum', 'Hyper', 'Vector', 'Astral', 'Flash', 'Pixel', 'Sonic', 'Matrix', 'Pulse', 'Apex'];
+  const nouns = ['Scribe', 'Voyager', 'Pilot', 'Crafter', 'Sketcher', 'Coder', 'Architect', 'Spark', 'Phantom', 'Node', 'Nexus', 'Shaper', 'Ghost', 'Rider'];
+  const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const noun = nouns[Math.floor(Math.random() * nouns.length)];
+  return `${adj}${noun}`;
+}
+
 export function generateColor(existingColors = []) {
-  const palette = ['#60a5fa','#7bd1fa','#19aee8','#a78bfa','#f472b6','#fb923c','#facc15','#4ade80','#2dd4bf','#e879f9','#f87171','#818cf8'];
+  const palette = ['#F4FF24', '#1558C9', '#38bdf8', '#a78bfa', '#f472b6', '#34d399', '#fbbf24', '#f87171', '#2dd4bf', '#818cf8'];
   const available = palette.filter(c => !existingColors.includes(c));
   if (available.length > 0) {
     return available[Math.floor(Math.random() * available.length)];

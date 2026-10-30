@@ -1,6 +1,6 @@
 import { getState, setState, subscribe } from './state.js';
 import { createRoom, joinRoom, leaveRoom, shareRoom } from './room.js';
-import { sanitizeHTML, copyToClipboard, generateRoomCode } from './utils.js';
+import { sanitizeHTML, copyToClipboard, generateRoomCode, getRandomNickname } from './utils.js';
 import { setActiveTool, getActiveTool, setCurrentStyle, getCurrentStyle } from './tools.js';
 import { undo, redo } from './history.js';
 import { setCamera, getCamera } from './renderer.js';
@@ -9,16 +9,102 @@ import { initChat, toggleChat } from './chat.js';
 import { clearBoard, updateObject } from './whiteboard.js';
 
 export function initUI() {
-  // Landing
-  document.getElementById('create-room-btn')?.addEventListener('click', createRoom);
-  document.getElementById('landing-join-btn')?.addEventListener('click', () => showModal('join-modal'));
+  // Setup Random Nicknames
+  const defaultNick = localStorage.getItem('xplainer_nickname') || getRandomNickname();
   
+  const creatorNickInput = document.getElementById('landing-creator-nickname');
+  if (creatorNickInput && !creatorNickInput.value) {
+    creatorNickInput.value = defaultNick;
+  }
+
+  const joinNickInput = document.getElementById('landing-join-nickname');
+  if (joinNickInput && !joinNickInput.value) {
+    joinNickInput.value = defaultNick;
+  }
+
+  // Randomize buttons
+  document.getElementById('btn-randomize-create')?.addEventListener('click', () => {
+    if (creatorNickInput) {
+      creatorNickInput.value = getRandomNickname();
+      creatorNickInput.focus();
+    }
+  });
+
+  document.getElementById('btn-randomize-join')?.addEventListener('click', () => {
+    if (joinNickInput) {
+      joinNickInput.value = getRandomNickname();
+      joinNickInput.focus();
+    }
+  });
+
+  // Dedicated Section: Instant Create Room
+  const handleInstantCreate = () => {
+    const nick = (creatorNickInput ? creatorNickInput.value.trim() : '') || getRandomNickname();
+    createRoom(nick);
+  };
+
+  document.getElementById('instant-create-submit')?.addEventListener('click', handleInstantCreate);
+  document.getElementById('create-room-btn')?.addEventListener('click', () => {
+    // If nickname already in inline input, create directly, else scroll to section
+    const sec = document.getElementById('create-room-section');
+    if (sec) {
+      sec.scrollIntoView({ behavior: 'smooth' });
+      creatorNickInput?.focus();
+    } else {
+      createRoom();
+    }
+  });
+
+  document.getElementById('create-room-hero-btn')?.addEventListener('click', () => {
+    const sec = document.getElementById('create-room-section');
+    if (sec) {
+      sec.scrollIntoView({ behavior: 'smooth' });
+      creatorNickInput?.focus();
+    } else {
+      createRoom();
+    }
+  });
+
+  // Dedicated Section: Join Room
   const landingCodeContainer = document.getElementById('landing-code-container');
   if (landingCodeContainer) {
     initCodeInputs(landingCodeContainer, () => {
-      document.getElementById('landing-join-submit')?.click();
+      updateLandingJoinBtnText();
     });
   }
+
+  function getLandingCode() {
+    const inputs = document.querySelectorAll('#landing-code-container .landing-code-input');
+    return Array.from(inputs).map(i => i.value).join('').toUpperCase();
+  }
+
+  function updateLandingJoinBtnText() {
+    const code = getLandingCode();
+    const btn = document.getElementById('landing-join-submit');
+    if (btn) {
+      btn.innerHTML = `<span class="material-symbols-outlined">login</span> Join Canvas (${code.padEnd(6, '-')})`;
+    }
+  }
+
+  document.querySelectorAll('#landing-code-container .landing-code-input').forEach(input => {
+    input.addEventListener('input', updateLandingJoinBtnText);
+  });
+
+  // Paste into landing code inputs
+  document.getElementById('landing-paste-code')?.addEventListener('click', async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      const code = text.trim().substring(0, 6).toUpperCase();
+      const inputs = document.querySelectorAll('#landing-code-container .landing-code-input');
+      code.split('').forEach((char, i) => {
+        if (inputs[i]) inputs[i].value = char;
+      });
+      updateLandingJoinBtnText();
+      if (inputs[code.length - 1]) inputs[code.length - 1].focus();
+    } catch (e) {
+      showToast('Clipboard access denied or empty', 'error');
+    }
+  });
 
   // Shuffle button on landing page
   document.getElementById('landing-shuffle-code')?.addEventListener('click', () => {
@@ -27,27 +113,42 @@ export function initUI() {
     code.split('').forEach((char, i) => {
       if (inputs[i]) inputs[i].value = char;
     });
+    updateLandingJoinBtnText();
     if (inputs[5]) inputs[5].focus();
   });
-  
+
+  // Landing Join Submit
   document.getElementById('landing-join-submit')?.addEventListener('click', () => {
-    const inputs = document.querySelectorAll('#landing-code-container .landing-code-input');
-    const code = Array.from(inputs).map(i => i.value).join('').toUpperCase();
+    const code = getLandingCode();
+    const nickname = (joinNickInput ? joinNickInput.value.trim() : '') || getRandomNickname();
+    
     if (code.length === 6) {
-      showModal('join-modal');
-      const joinInputs = document.querySelectorAll('#join-code-container .join-code-input');
-      code.split('').forEach((char, i) => {
-        if (joinInputs[i]) joinInputs[i].value = char;
-      });
-      const joinSubmit = document.getElementById('join-submit');
-      if (joinSubmit) joinSubmit.textContent = `Join Room (${code})`;
-      document.getElementById('join-nickname')?.focus();
+      joinRoom(code, nickname);
     } else {
-      showToast('Please enter a 6-character room code', 'error');
+      showToast('Please enter all 6 characters of the room code', 'error');
+      const inputs = document.querySelectorAll('#landing-code-container .landing-code-input');
+      for (const input of inputs) {
+        if (!input.value) {
+          input.focus();
+          break;
+        }
+      }
     }
   });
 
-  // Join Modal
+  // Hero Join button: smooth scroll to Join Section
+  document.getElementById('landing-join-btn')?.addEventListener('click', () => {
+    const sec = document.getElementById('join-room-section');
+    if (sec) {
+      sec.scrollIntoView({ behavior: 'smooth' });
+      const firstInput = document.querySelector('#landing-code-container .landing-code-input');
+      firstInput?.focus();
+    } else {
+      showModal('join-modal');
+    }
+  });
+
+  // Join Modal (for URL join links)
   const joinCodeContainer = document.getElementById('join-code-container');
   if (joinCodeContainer) {
     initCodeInputs(joinCodeContainer, () => {
@@ -61,14 +162,12 @@ export function initUI() {
   document.getElementById('join-submit')?.addEventListener('click', () => {
     const inputs = document.querySelectorAll('#join-code-container .join-code-input');
     const code = Array.from(inputs).map(i => i.value).join('').toUpperCase();
-    const nickname = document.getElementById('join-nickname')?.value.trim();
+    const nickname = document.getElementById('join-nickname')?.value.trim() || getRandomNickname();
     if (code.length === 6 && nickname) {
       hideModal('join-modal');
       joinRoom(code, nickname);
     } else if (code.length !== 6) {
       showToast('Room code must be 6 characters', 'error');
-    } else if (!nickname) {
-      showToast('Nickname is required', 'error');
     }
   });
   
@@ -111,19 +210,19 @@ export function initUI() {
     }
   });
 
-  // Top Bar
+  // Top Bar Actions in Workspace
   document.getElementById('copy-code-btn')?.addEventListener('click', () => {
     const code = getState().room?.code;
     if (code) {
       copyToClipboard(code);
-      showToast('Room code copied!', 'success');
+      showToast('Room code copied to clipboard!', 'success');
     }
   });
   document.getElementById('room-code-display')?.addEventListener('click', () => {
     const code = getState().room?.code;
     if (code) {
       copyToClipboard(code);
-      showToast('Room code copied!', 'success');
+      showToast('Room code copied to clipboard!', 'success');
     }
   });
   
@@ -201,19 +300,6 @@ export function initUI() {
   // Setup Chat
   initChat();
   
-  // Pre-fill nickname
-  const savedNickname = localStorage.getItem('xplainer_nickname');
-  if (savedNickname) {
-    const creatorInput = document.getElementById('creator-nickname-input');
-    const joinInput = document.getElementById('join-nickname');
-    if (creatorInput) creatorInput.value = savedNickname;
-    if (joinInput) {
-      joinInput.value = savedNickname;
-      const preview = document.getElementById('join-avatar-preview');
-      if (preview) preview.textContent = savedNickname.charAt(0).toUpperCase();
-    }
-  }
-  
   // Setup modal close on Escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
@@ -253,13 +339,15 @@ function initStylePanel() {
   opacityInput?.addEventListener('input', (e) => applyStyleUpdate({ opacity: Number(e.target.value) }));
   fontSizeInput?.addEventListener('input', (e) => applyStyleUpdate({ fontSize: Number(e.target.value) }));
 
-  // Color Presets
+  // Color Presets - Midnight Black, Electric Cobalt, Acid Lime and companions
   document.querySelectorAll('.color-preset-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const color = btn.dataset.color;
       if (color) {
         if (strokeColorInput) strokeColorInput.value = color;
         applyStyleUpdate({ stroke: color });
+        document.querySelectorAll('.color-preset-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
       }
     });
   });
@@ -354,7 +442,7 @@ export function updateConnectionStatus(status) {
   badge.className = 'badge';
   if (status === 'connected') {
     badge.classList.add('badge-connected');
-    text.textContent = 'Connected';
+    text.textContent = 'Live Synced';
   } else if (status === 'reconnecting') {
     badge.classList.add('badge-reconnecting');
     text.textContent = 'Reconnecting...';
@@ -383,7 +471,9 @@ export function updateParticipants(users) {
   toDisplay.forEach(u => {
     const avatar = document.createElement('div');
     avatar.className = 'avatar';
-    avatar.style.backgroundColor = u.color || '#60a5fa';
+    avatar.style.backgroundColor = u.color || '#1558C9';
+    avatar.style.borderColor = u.color === '#F4FF24' ? '#030407' : '#F4FF24';
+    avatar.style.color = u.color === '#F4FF24' ? '#030407' : '#ffffff';
     avatar.title = u.nickname || 'Anonymous';
     avatar.textContent = u.nickname ? u.nickname.substring(0, 2).toUpperCase() : '??';
     container.appendChild(avatar);
@@ -392,6 +482,7 @@ export function updateParticipants(users) {
   if (allUsers.length > displayLimit) {
     const overflow = document.createElement('div');
     overflow.className = 'avatar avatar-overflow';
+    overflow.style.backgroundColor = '#1558C9';
     overflow.textContent = `+${allUsers.length - displayLimit}`;
     container.appendChild(overflow);
   }

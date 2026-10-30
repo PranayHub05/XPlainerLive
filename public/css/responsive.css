@@ -1,47 +1,67 @@
-/* Media Queries */
+/* ==========================================================================
+   RESPONSIVE DESIGN - Desktop & Mobile Optimization
+   ========================================================================== */
 
+/* Tablets & Small Laptops (max-width: 1024px) */
 @media (max-width: 1024px) {
   :root {
     --fs-display-hero: var(--fs-display-hero-mobile);
     --lh-display-hero: var(--lh-display-hero-mobile);
     --ls-display-hero: var(--ls-display-hero-mobile);
-    
-    --gutter-desktop: var(--gutter);
+    --gutter-desktop: 1.5rem;
+  }
+
+  .split-action-card {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 36px 28px;
+  }
+
+  .action-graphic-side {
+    order: -1;
+    min-height: 200px;
+  }
+
+  .action-svg-illustration {
+    max-width: 240px;
   }
 
   .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .steps-container {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 
-  .how-it-works-section .steps-container {
-    flex-direction: column;
-    gap: var(--space-xl);
-  }
-
-  /* Toolbar horizontal at bottom */
+  /* Workspace Layout on Tablet */
   .toolbar {
     left: 50%;
     top: auto;
     bottom: 80px;
     transform: translateX(-50%);
     flex-direction: row;
-    padding: 8px 16px;
+    padding: 8px 14px;
     width: auto;
-    max-width: 90vw;
+    max-width: 92vw;
     overflow-x: auto;
+    border-radius: var(--radius-2xl);
   }
+
   .toolbar-separator {
-    width: 2px;
+    width: 1px;
     height: 24px;
-    margin: 0 4px;
+    margin: 0 6px;
   }
 
   .chat-panel {
     width: 100%;
     right: 0;
     bottom: 0;
+    left: 0;
     border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
-    max-height: 50vh;
+    max-height: 55vh;
   }
 
   .export-bar {
@@ -52,104 +72,212 @@
   }
 
   .bottombar-container {
-    display: none; /* Hide complex bottom bar on tablet */
+    display: none; /* Consolidate bottom on tablets */
+  }
+
+  .style-panel {
+    top: auto;
+    bottom: 140px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 90vw;
   }
 }
 
+/* Mobile Devices (max-width: 768px) */
 @media (max-width: 768px) {
-  .hero-section {
-    padding: 100px var(--gutter) 60px;
+  :root {
+    --gutter-desktop: 1rem;
+    --gutter: 1rem;
   }
-  
+
+  .landing-header {
+    padding: 12px 16px;
+  }
+
+  .landing-nav {
+    display: none; /* Hide top links on mobile */
+  }
+
+  .hero-section {
+    padding: 110px var(--gutter) 40px;
+  }
+
+  .hero-section h1 {
+    font-size: 32px;
+    line-height: 40px;
+  }
+
+  .hero-subtitle {
+    font-size: 16px;
+    line-height: 26px;
+  }
+
   .hero-buttons {
     flex-direction: column;
     width: 100%;
-    max-width: 300px;
+    max-width: 320px;
+  }
+
+  .hero-cta-btn {
+    width: 100%;
   }
 
   .stats-strip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    width: 100%;
+  }
+
+  .stat-card {
+    padding: 8px 12px;
+    font-size: 12px;
+    justify-content: center;
+  }
+
+  .showcase-wrapper {
+    margin-bottom: 50px;
+  }
+
+  .canvas-showcase {
+    height: 300px;
+    transform: none !important;
+    border-radius: var(--radius-2xl);
+  }
+
+  .showcase-node {
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+
+  .showcase-mini-toolbar {
+    display: none;
+  }
+
+  /* Room Actions Sections on Mobile */
+  .room-actions-wrapper {
+    padding: 10px var(--gutter) 60px;
+  }
+
+  .create-room-section, .join-room-section {
+    padding: 30px 0;
+  }
+
+  .split-action-card {
+    padding: 24px 18px;
+    border-radius: var(--radius-2xl);
+  }
+
+  .action-form-side h3 {
+    font-size: 20px;
+  }
+
+  .nickname-input-wrap {
     flex-direction: column;
+  }
+
+  .btn-randomize {
+    padding: 10px;
+    justify-content: center;
+  }
+
+  /* Room Code Inputs - Precise Sizing for Small Screens */
+  .landing-code-container, .join-code-container {
+    gap: 6px;
+    justify-content: center;
+  }
+
+  .landing-code-container .landing-code-input,
+  .join-code-container .join-code-input,
+  .code-input {
+    width: 42px;
+    height: 50px;
+    font-size: 18px;
+    border-radius: 8px;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .feature-card {
+    padding: 24px 20px;
+  }
+
+  .how-it-works-section {
+    padding: 60px var(--gutter);
+  }
+
+  .cta-section {
+    padding: 70px var(--gutter);
+  }
+
+  .cta-actions {
+    flex-direction: column;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .guarantee-strip {
+    flex-direction: column;
+    gap: 8px;
     align-items: center;
   }
 
-  .landing-code-container .landing-code-input {
-    width: 40px;
-    height: 48px;
-    font-size: 16px;
+  .landing-footer {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+    padding: 24px var(--gutter);
   }
 
-  /* Workspace changes */
+  /* Workspace on Mobile */
   .topbar {
-    padding: 0 var(--space-sm);
+    padding: 0 12px;
+    height: 56px;
   }
-  
-  .topbar .logo {
+
+  .topbar .logo-text {
     display: none;
   }
-  
+
   #participants-container {
     display: none;
   }
 
+  .room-code-chip {
+    font-size: 15px;
+    padding: 4px 10px;
+  }
+
+  #share-btn span:last-child {
+    display: none;
+  }
+
+  #share-btn {
+    padding: 6px 10px;
+  }
+
+  #leave-btn {
+    padding: 6px 10px;
+  }
+
   .modal-content {
-    padding: var(--space-md);
-    border-radius: var(--radius-lg);
+    padding: 24px 18px;
     max-width: 95vw;
   }
-  
-  .join-code-container .join-code-input {
+}
+
+/* Extra small screens (max-width: 380px) */
+@media (max-width: 380px) {
+  .landing-code-container .landing-code-input,
+  .join-code-container .join-code-input,
+  .code-input {
     width: 36px;
-    height: 44px;
+    height: 46px;
     font-size: 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero-section h1 {
-    font-size: 28px;
-    line-height: 36px;
-  }
-
-  .feature-card {
-    padding: var(--space-md);
-  }
-  
-  .topbar {
-    height: 56px;
-  }
-  
-  .room-code-chip {
-    font-size: 14px;
-  }
-  
-  .toolbar {
-    bottom: 16px;
-    padding: 6px;
-    gap: 4px;
-  }
-  .btn-icon {
-    width: 36px;
-    height: 36px;
-  }
-}
-
-/* Touch specifics */
-@media (hover: none) and (pointer: coarse) {
-  button, a {
-    min-width: 44px;
-    min-height: 44px;
-  }
-  
-  .btn-icon {
-    width: 44px;
-    height: 44px;
-  }
-  
-  .chat-input {
-    font-size: 16px; /* Prevent iOS zoom */
-  }
-  
-  .input-field, .code-input, .landing-code-input, .join-code-input {
-    font-size: 16px; /* Prevent iOS zoom */
   }
 }

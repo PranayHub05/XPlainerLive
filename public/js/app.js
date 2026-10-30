@@ -11,6 +11,7 @@ import { onWSMessage } from './websocket.js';
 import { startCursorBroadcast, stopCursorBroadcast, initCursorSync } from './cursor.js';
 import { initPresence, updateDrawingStatus } from './presence.js';
 import { setChatOpen } from './chat.js';
+import { initBackground, stopBackground } from './background.js';
 
 export function init() {
   console.log('XPlainerLive initializing...');
@@ -27,6 +28,7 @@ export function init() {
   }
 
   initUI();
+  initBackground();
   
   // Check URL params
   const urlParams = new URLSearchParams(window.location.search);
@@ -60,6 +62,7 @@ export function init() {
 }
 
 export function setupWorkspace() {
+  stopBackground();
   showView('workspace-view');
   
   const canvasContainer = document.getElementById('canvas-container');
@@ -100,43 +103,13 @@ export function setupWorkspace() {
         deleteObject(objectId, false);
         break;
       case 'move':
-        if (data && data.dx !== undefined && data.dy !== undefined) {
-          moveObject(objectId, data.dx, data.dy, false);
-        } else if (data) {
-          updateObject(objectId, data, false);
-        }
-        break;
-      case 'clear':
-        clearBoard(false);
+        if (data) moveObject(objectId, data.dx, data.dy, false);
         break;
     }
   });
   
+  // Host clears board
   onWSMessage(MessageType.BOARD_CLEAR, () => {
     clearBoard(false);
   });
-  
-  onDataMessage(DataMessageType.BOARD_SYNC_REQUEST, (msg) => {
-    if (getState().room?.hostId === getState().localUser?.id) {
-      const boardData = getBoardData();
-      sendToAllPeers(DataMessageType.BOARD_SYNC, boardData);
-    }
-  });
-  
-  onDataMessage(DataMessageType.BOARD_SYNC, (msg) => {
-    setObjectsFromSync(msg);
-  });
-  
-  // Grid config
-  const isGrid = getState().board?.gridEnabled;
-  const gridBtn = document.getElementById('grid-toggle');
-  const gridLabel = document.getElementById('grid-label');
-  if (gridBtn) gridBtn.classList.toggle('active', isGrid);
-  if (gridLabel) gridLabel.textContent = isGrid ? 'Hide Grid' : 'Show Grid';
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
 }

@@ -89,7 +89,8 @@ function performRender() {
   const camera = state.camera;
   const rect = containerEl.getBoundingClientRect();
   
-  ctx.fillStyle = '#090e1a'; // Background color from typical dark theme
+  // Midnight Black canvas
+  ctx.fillStyle = '#030407';
   ctx.fillRect(0, 0, rect.width, rect.height);
   
   ctx.save();
@@ -126,11 +127,12 @@ function renderGrid(rect, camera) {
   const endX = startX + (rect.width / camera.zoom) + gridSize;
   const endY = startY + (rect.height / camera.zoom) + gridSize;
   
-  ctx.fillStyle = 'rgba(164, 201, 255, 0.15)';
+  // Electric Cobalt dot grid
+  ctx.fillStyle = 'rgba(21, 88, 201, 0.28)';
   for (let x = startX; x < endX; x += gridSize) {
     for (let y = startY; y < endY; y += gridSize) {
       ctx.beginPath();
-      ctx.arc(x, y, 1.5 / camera.zoom, 0, Math.PI * 2);
+      ctx.arc(x, y, 1.4 / camera.zoom, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -145,7 +147,7 @@ export function renderAllObjects(context, objects) {
 function renderObject(context, obj) {
   context.save();
   context.globalAlpha = obj.opacity ?? 1;
-  context.strokeStyle = obj.stroke || '#a4c9ff';
+  context.strokeStyle = obj.stroke || '#F4FF24';
   context.fillStyle = obj.fill || 'transparent';
   context.lineWidth = obj.strokeWidth || 2;
   context.lineJoin = 'round';
@@ -234,11 +236,11 @@ export function renderStroke(context, obj) {
 
 export function renderText(context, obj) {
   context.font = `${obj.fontSize || 16}px ${obj.fontFamily || 'Inter, sans-serif'}`;
-  context.fillStyle = obj.color || '#dee2f4';
+  context.fillStyle = obj.color || '#f1f5fc';
   context.textBaseline = 'top';
   
   const lines = (obj.text || '').split('\n');
-  const lineHeight = (obj.fontSize || 16) * 1.2;
+  const lineHeight = (obj.fontSize || 16) * 1.25;
   
   for (let i = 0; i < lines.length; i++) {
     context.fillText(lines[i], obj.x, obj.y + i * lineHeight);
@@ -258,14 +260,15 @@ function renderSelectionUI(context, selectedObjects, camera) {
     if (bounds.y + bounds.height > maxY) maxY = bounds.y + bounds.height;
   }
   
-  const padding = 5 / camera.zoom;
+  const padding = 6 / camera.zoom;
   minX -= padding;
   minY -= padding;
   maxX += padding;
   maxY += padding;
   
-  context.strokeStyle = '#a4c9ff';
-  context.lineWidth = 1 / camera.zoom;
+  // Selection box with Acid Lime neon dash
+  context.strokeStyle = '#F4FF24';
+  context.lineWidth = 1.5 / camera.zoom;
   context.setLineDash([5 / camera.zoom, 5 / camera.zoom]);
   context.strokeRect(minX, minY, maxX - minX, maxY - minY);
   context.setLineDash([]);
@@ -282,8 +285,9 @@ function renderSelectionUI(context, selectedObjects, camera) {
     { x: minX, y: minY + (maxY - minY)/2 }
   ];
   
-  context.fillStyle = '#ffffff';
-  context.lineWidth = 1 / camera.zoom;
+  context.fillStyle = '#1558C9';
+  context.strokeStyle = '#F4FF24';
+  context.lineWidth = 1.5 / camera.zoom;
   for (const h of handles) {
     context.fillRect(h.x - handleSize/2, h.y - handleSize/2, handleSize, handleSize);
     context.strokeRect(h.x - handleSize/2, h.y - handleSize/2, handleSize, handleSize);

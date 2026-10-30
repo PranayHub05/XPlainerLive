@@ -8,64 +8,83 @@ import { getTimestamp } from './utils.js';
 
 let unsubs = [];
 
-export function createRoom() {
-  showModal('nickname-modal');
+export function createRoom(directNickname) {
+  let nickname = typeof directNickname === 'string' ? directNickname.trim() : '';
   
-  const submitHandler = (e) => {
-    if (e) e.preventDefault();
-    const input = document.getElementById('creator-nickname-input');
-    const nickname = input ? input.value.trim() : '';
-    
-    if (nickname) {
-      setState('localUser.nickname', nickname);
-      localStorage.setItem('xplainer_nickname', nickname);
-      hideModal('nickname-modal');
-      
-      const url = getWSUrl();
-      connectWS(url);
-      
-      const onJoined = (payload) => {
-        setState('room.code', payload.roomCode);
-        setState('localUser.id', payload.userId);
-        setState('localUser.color', payload.color);
-        setState('room.hostId', payload.hostId);
-        const normalizedUsers = (payload.users || []).map(u => ({
-          id: u.id || u.userId,
-          userId: u.id || u.userId,
-          nickname: u.nickname,
-          color: u.color
-        }));
-        setState('users', normalizedUsers);
-        
-        initWebRTC();
-        setupWorkspace();
-        window.history.pushState({}, '', `/?room=${payload.roomCode}`);
-        setupRoomListeners();
-      };
-      
-      const unsub = onWSMessage(MessageType.ROOM_JOINED, onJoined);
-      unsubs.push(unsub);
-      
-      const sendCreate = () => {
-        sendWS(MessageType.ROOM_CREATE, { nickname });
-      };
-      
-      if (getState().connection?.ws === 'connected') {
-        sendCreate();
-      } else {
-        const unsubConn = subscribe('connection.ws', (val) => {
-          if (val === 'connected') {
-            sendCreate();
-            unsubConn();
-          }
-        });
-        unsubs.push(unsubConn);
-      }
+  if (!nickname) {
+    const inlineInput = document.getElementById('landing-creator-nickname');
+    if (inlineInput && inlineInput.value.trim()) {
+      nickname = inlineInput.value.trim();
     }
+  }
+
+  if (nickname) {
+    proceedCreate(nickname);
+  } else {
+    showModal('nickname-modal');
+    const input = document.getElementById('creator-nickname-input');
+    if (input) {
+      input.value = localStorage.getItem('xplainer_nickname') || '';
+      input.focus();
+    }
+    const submitBtn = document.getElementById('creator-nickname-submit');
+    if (submitBtn) {
+      submitBtn.onclick = (e) => {
+        if (e) e.preventDefault();
+        const nick = input ? input.value.trim() : '';
+        if (nick) {
+          hideModal('nickname-modal');
+          proceedCreate(nick);
+        }
+      };
+    }
+  }
+}
+
+function proceedCreate(nickname) {
+  setState('localUser.nickname', nickname);
+  localStorage.setItem('xplainer_nickname', nickname);
+  
+  const url = getWSUrl();
+  connectWS(url);
+  
+  const onJoined = (payload) => {
+    setState('room.code', payload.roomCode);
+    setState('localUser.id', payload.userId);
+    setState('localUser.color', payload.color);
+    setState('room.hostId', payload.hostId);
+    const normalizedUsers = (payload.users || []).map(u => ({
+      id: u.id || u.userId,
+      userId: u.id || u.userId,
+      nickname: u.nickname,
+      color: u.color
+    }));
+    setState('users', normalizedUsers);
+    
+    initWebRTC();
+    setupWorkspace();
+    window.history.pushState({}, '', `/?room=${payload.roomCode}`);
+    setupRoomListeners();
   };
   
-  const submitBtn = document.getElementById('creator-nickname-submit');
-  if (submitBtn) submitBtn.onclick = submitHandler;
+  const unsub = onWSMessage(MessageType.ROOM_JOINED, onJoined);
+  unsubs.push(unsub);
+  
+  const sendCreate = () => {
+    sendWS(MessageType.ROOM_CREATE, { nickname });
+  };
+  
+  if (getState().connection?.ws === 'connected') {
+    sendCreate();
+  } else {
+    const unsubConn = subscribe('connection.ws', (val) => {
+      if (val === 'connected') {
+        sendCreate();
+        unsubConn();
+      }
+    });
+    unsubs.push(unsubConn);
+  }
 }
 
 export function joinRoom(code, nickname) {
@@ -165,6 +184,7 @@ export function leaveRoom() {
   resetState();
   showView('landing-view');
   window.history.pushState({}, '', '/');
+  import('./background.js').then(bg => bg.startBackground());
 }
 
 export function shareRoom() {

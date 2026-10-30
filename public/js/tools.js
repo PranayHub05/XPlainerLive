@@ -25,7 +25,7 @@ export const TOOLS = {
 };
 
 let currentStyle = {
-  stroke: '#a4c9ff',
+  stroke: '#F4FF24',
   fill: 'transparent',
   strokeWidth: 2,
   opacity: 1,
@@ -126,7 +126,7 @@ export function initTools(canvas, container) {
           userId: user.id,
           createdAt: Date.now(),
           points: [{ x: startWorldPoint.x, y: startWorldPoint.y }],
-          stroke: currentStyle.stroke || user.color || '#a4c9ff',
+          stroke: currentStyle.stroke || user.color || '#F4FF24',
           strokeWidth: currentStyle.strokeWidth || 2,
           opacity: currentStyle.opacity !== undefined ? currentStyle.opacity : 1
         };
@@ -152,7 +152,7 @@ export function initTools(canvas, container) {
           type: activeTool,
           userId: user.id,
           createdAt: Date.now(),
-          stroke: currentStyle.stroke || user.color || '#a4c9ff',
+          stroke: currentStyle.stroke || user.color || '#F4FF24',
           fill: currentStyle.fill || 'transparent',
           strokeWidth: currentStyle.strokeWidth || 2,
           opacity: currentStyle.opacity !== undefined ? currentStyle.opacity : 1
@@ -237,7 +237,7 @@ export function initTools(canvas, container) {
           setPreviewObject({
             type: 'rectangle',
             x: rx, y: ry, width: rw, height: rh,
-            stroke: '#a4c9ff', strokeWidth: 1, fill: 'rgba(164, 201, 255, 0.1)', opacity: 1,
+            stroke: '#F4FF24', strokeWidth: 1, fill: 'rgba(244, 255, 36, 0.12)', opacity: 1,
             id: 'selection-rect'
           });
         }
@@ -392,7 +392,7 @@ export function initTools(canvas, container) {
     textarea.style.font = `${textObj.fontSize * camera.zoom}px ${textObj.fontFamily}`;
     textarea.style.color = textObj.color;
     textarea.style.background = 'transparent';
-    textarea.style.border = '1px dashed #a4c9ff';
+    textarea.style.border = '1px dashed #F4FF24';
     textarea.style.outline = 'none';
     textarea.style.padding = '0';
     textarea.style.margin = '0';

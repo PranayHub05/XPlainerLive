@@ -18,7 +18,7 @@ const MessageType = {
 const rooms = new Map();
 const connections = new Map();
 
-const PALETTE = ['#60a5fa', '#7bd1fa', '#19aee8', '#a78bfa', '#f472b6', '#fb923c', '#facc15', '#4ade80', '#2dd4bf', '#e879f9', '#f87171', '#818cf8'];
+const PALETTE = ['#F4FF24', '#1558C9', '#38bdf8', '#a78bfa', '#f472b6', '#34d399', '#fbbf24', '#f87171', '#2dd4bf', '#818cf8'];
 
 function generateRoomCode() {
   const chars = 'ABCDEFGHJKLMNPQRTUVWXYZ2346789';
