@@ -12,6 +12,7 @@ let resizeObserver = null;
 export function initRenderer(canvas, container) {
   canvasEl = canvas;
   containerEl = container;
+  if (!canvas || typeof canvas.getContext !== 'function') return () => {};
   ctx = canvas.getContext('2d', { alpha: false });
   
   resize();

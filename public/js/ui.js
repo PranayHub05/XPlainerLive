@@ -37,6 +37,27 @@ export function initUI() {
     localStorage.setItem('xplainer_nickname', val);
   });
 
+  heroNameInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      executeCreate();
+    }
+  });
+
+  creatorNickInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      executeCreate();
+    }
+  });
+
+  joinNickInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('landing-join-submit')?.click();
+    }
+  });
+
   // Randomize button handlers
   document.getElementById('btn-randomize-create')?.addEventListener('click', () => {
     const newName = getRandomNickname();
@@ -87,16 +108,15 @@ export function initUI() {
   // ==========================================
 
   const executeOpenJoin = () => {
-    const sec = document.getElementById('join-room-section');
-    if (sec && window.innerWidth > 768) {
-      sec.scrollIntoView({ behavior: 'smooth' });
-      const firstInput = document.querySelector('#landing-code-container .landing-code-input');
-      firstInput?.focus();
-    } else {
-      showModal('join-modal');
-      const firstInput = document.querySelector('#join-code-container .join-code-input');
-      firstInput?.focus();
+    const joinModalNick = document.getElementById('join-nickname');
+    if (joinModalNick && !joinModalNick.value) {
+      joinModalNick.value = heroNameInput?.value.trim() || localStorage.getItem('xplainer_nickname') || getRandomNickname();
+      const preview = document.getElementById('join-avatar-preview');
+      if (preview) preview.textContent = joinModalNick.value.charAt(0).toUpperCase();
     }
+    showModal('join-modal');
+    const firstInput = document.querySelector('#join-code-container .join-code-input');
+    firstInput?.focus();
   };
 
   // Header "Join a Room →"
@@ -368,7 +388,21 @@ export function initUI() {
   // Setup Chat
   initChat();
   
-  // Setup modal close on Escape
+  // Setup modal close on Escape or backdrop click
+  document.querySelectorAll('.modal-overlay').forEach(modal => {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        hideModal(modal.id);
+      }
+    });
+  });
+
+  mobileDrawer?.addEventListener('click', (e) => {
+    if (e.target === mobileDrawer) {
+      mobileDrawer.classList.add('hidden');
+    }
+  });
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       document.querySelectorAll('.modal-overlay:not(.hidden)').forEach(modal => {
@@ -484,8 +518,12 @@ export function showToast(message, type = 'info', duration = 3000) {
     setTimeout(() => toast.remove(), 300);
   }, duration);
   
-  while (container.children.length > 3) {
-    container.firstChild.remove();
+  while (container.children && container.children.length > 3) {
+    if (container.children[0]?.remove) {
+      container.children[0].remove();
+    } else {
+      break;
+    }
   }
 }
 

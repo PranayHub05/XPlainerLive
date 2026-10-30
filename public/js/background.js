@@ -11,7 +11,7 @@ let isRunning = false;
 
 export function initBackground() {
   canvas = document.getElementById('bg-particle-canvas');
-  if (!canvas) return;
+  if (!canvas || typeof canvas.getContext !== 'function') return;
   ctx = canvas.getContext('2d', { alpha: true });
   
   resize();

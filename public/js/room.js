@@ -4,9 +4,10 @@ import { connectWS, sendWS, getWSUrl, onWSMessage, disconnectWS } from './websoc
 import { initWebRTC, closeAllPeers, createPeerConnection } from './webrtc.js';
 import { showModal, hideModal, showView, showToast } from './ui.js';
 import { setupWorkspace } from './app.js';
-import { getTimestamp, getRandomNickname } from './utils.js';
+import { getTimestamp, getRandomNickname, generateRoomCode, generateUserId, generateColor } from './utils.js';
 
 let unsubs = [];
+let pendingFallbackTimer = null;
 
 export function createRoom(directNickname) {
   let nickname = typeof directNickname === 'string' ? directNickname.trim() : '';
@@ -33,33 +34,55 @@ export function createRoom(directNickname) {
 }
 
 function proceedCreate(nickname) {
+  showToast('Starting whiteboard...', 'info', 1800);
   setState('localUser.nickname', nickname);
   localStorage.setItem('xplainer_nickname', nickname);
   
+  let hasTransitioned = false;
+
+  const enterWorkspace = (roomCode, userId, color, hostId, users, isOffline = false) => {
+    if (hasTransitioned) return;
+    hasTransitioned = true;
+    
+    if (pendingFallbackTimer) {
+      clearTimeout(pendingFallbackTimer);
+      pendingFallbackTimer = null;
+    }
+
+    setState('room.code', roomCode);
+    setState('localUser.id', userId);
+    setState('localUser.color', color);
+    setState('room.hostId', hostId);
+    setState('users', users);
+    
+    initWebRTC();
+    setupWorkspace();
+    window.history.pushState({}, '', `/?room=${roomCode}`);
+    setupRoomListeners();
+
+    if (isOffline) {
+      showToast('Whiteboard ready! (Start node server for live peer sync)', 'success', 3500);
+    } else {
+      showToast(`Room ${roomCode} created!`, 'success', 2500);
+    }
+  };
+
+  // Attempt live WebSocket connection
   const url = getWSUrl();
   connectWS(url);
   
   const onJoined = (payload) => {
-    setState('room.code', payload.roomCode);
-    setState('localUser.id', payload.userId);
-    setState('localUser.color', payload.color);
-    setState('room.hostId', payload.hostId);
     const normalizedUsers = (payload.users || []).map(u => ({
       id: u.id || u.userId,
       userId: u.id || u.userId,
       nickname: u.nickname,
       color: u.color
     }));
-    setState('users', normalizedUsers);
-    
-    initWebRTC();
-    setupWorkspace();
-    window.history.pushState({}, '', `/?room=${payload.roomCode}`);
-    setupRoomListeners();
+    enterWorkspace(payload.roomCode, payload.userId, payload.color, payload.hostId, normalizedUsers, false);
   };
   
-  const unsub = onWSMessage(MessageType.ROOM_JOINED, onJoined);
-  unsubs.push(unsub);
+  const unsubJoined = onWSMessage(MessageType.ROOM_JOINED, onJoined);
+  unsubs.push(unsubJoined);
   
   const sendCreate = () => {
     sendWS(MessageType.ROOM_CREATE, { nickname });
@@ -76,6 +99,18 @@ function proceedCreate(nickname) {
     });
     unsubs.push(unsubConn);
   }
+
+  // Resilient fallback: If server doesn't respond in 650ms, open local whiteboard immediately
+  pendingFallbackTimer = setTimeout(() => {
+    if (!hasTransitioned) {
+      console.log('Server not responding immediately, launching offline/local whiteboard.');
+      const localCode = generateRoomCode();
+      const localId = generateUserId();
+      const localColor = '#1558C9';
+      const localUser = { id: localId, userId: localId, nickname, color: localColor };
+      enterWorkspace(localCode, localId, localColor, localId, [localUser], true);
+    }
+  }, 650);
 }
 
 export function joinRoom(code, nickname) {
@@ -104,33 +139,42 @@ export function joinRoom(code, nickname) {
     nickname = localStorage.getItem('xplainer_nickname') || getRandomNickname();
   }
 
+  showToast(`Joining room ${code}...`, 'info', 1800);
   setState('localUser.nickname', nickname);
   localStorage.setItem('xplainer_nickname', nickname);
   
-  const url = getWSUrl();
-  connectWS(url);
-  
-  const onJoined = (payload) => {
-    setState('room.code', payload.roomCode);
-    setState('localUser.id', payload.userId);
-    setState('localUser.color', payload.color);
-    setState('room.hostId', payload.hostId);
-    const normalizedUsers = (payload.users || []).map(u => ({
-      id: u.id || u.userId,
-      userId: u.id || u.userId,
-      nickname: u.nickname,
-      color: u.color
-    }));
-    setState('users', normalizedUsers);
+  let hasTransitioned = false;
+
+  const enterWorkspace = (roomCode, userId, color, hostId, users, isOffline = false) => {
+    if (hasTransitioned) return;
+    hasTransitioned = true;
+
+    if (pendingFallbackTimer) {
+      clearTimeout(pendingFallbackTimer);
+      pendingFallbackTimer = null;
+    }
+
+    setState('room.code', roomCode);
+    setState('localUser.id', userId);
+    setState('localUser.color', color);
+    setState('room.hostId', hostId);
+    setState('users', users);
     
     initWebRTC();
     setupWorkspace();
-    window.history.pushState({}, '', `/?room=${payload.roomCode}`);
+    window.history.pushState({}, '', `/?room=${roomCode}`);
     setupRoomListeners();
+
+    if (isOffline) {
+      showToast(`Joined whiteboard ${roomCode} (Local mode)`, 'info', 3000);
+    } else {
+      showToast(`Connected to room ${roomCode}!`, 'success', 2500);
+    }
     
-    if (normalizedUsers.length > 0) {
-      const localId = payload.userId;
-      normalizedUsers.forEach(u => {
+    // Connect WebRTC with existing peers
+    if (!isOffline && users && users.length > 0) {
+      const localId = userId;
+      users.forEach(u => {
         const otherId = u.id || u.userId;
         if (otherId !== localId && localId < otherId) {
           createPeerConnection(otherId, true);
@@ -138,8 +182,25 @@ export function joinRoom(code, nickname) {
       });
     }
   };
+
+  const url = getWSUrl();
+  connectWS(url);
+  
+  const onJoined = (payload) => {
+    const normalizedUsers = (payload.users || []).map(u => ({
+      id: u.id || u.userId,
+      userId: u.id || u.userId,
+      nickname: u.nickname,
+      color: u.color
+    }));
+    enterWorkspace(payload.roomCode, payload.userId, payload.color, payload.hostId, normalizedUsers, false);
+  };
   
   const onError = (payload) => {
+    if (pendingFallbackTimer) {
+      clearTimeout(pendingFallbackTimer);
+      pendingFallbackTimer = null;
+    }
     showToast(payload.message || 'Error joining room', 'error');
     disconnectWS();
   };
@@ -162,6 +223,17 @@ export function joinRoom(code, nickname) {
     });
     unsubs.push(unsubConn);
   }
+
+  // Fallback if server is not running: still let user into the board with the given code
+  pendingFallbackTimer = setTimeout(() => {
+    if (!hasTransitioned) {
+      console.log('Server unreachable for room join, entering in local mode.');
+      const localId = generateUserId();
+      const localColor = '#F4FF24';
+      const localUser = { id: localId, userId: localId, nickname, color: localColor };
+      enterWorkspace(code, localId, localColor, localId, [localUser], true);
+    }
+  }, 900);
 }
 
 function setupRoomListeners() {
@@ -179,7 +251,7 @@ function setupRoomListeners() {
     const peerId = payload.userId || payload.id;
     const currentUsers = Array.isArray(getState().users) ? getState().users : [];
     setState('users', currentUsers.filter(u => (u.id || u.userId) !== peerId));
-    showToast(`User left`, 'info');
+    showToast(`A participant left`, 'info');
   }));
 
   unsubs.push(onWSMessage(MessageType.ROOM_HOST, (payload) => {
@@ -191,6 +263,10 @@ function setupRoomListeners() {
 }
 
 export function leaveRoom() {
+  if (pendingFallbackTimer) {
+    clearTimeout(pendingFallbackTimer);
+    pendingFallbackTimer = null;
+  }
   closeAllPeers();
   disconnectWS();
   unsubs.forEach(u => u());
@@ -200,6 +276,7 @@ export function leaveRoom() {
   showView('landing-view');
   window.history.pushState({}, '', '/');
   import('./background.js').then(bg => bg.startBackground());
+  showToast('Left whiteboard', 'info', 1800);
 }
 
 export function shareRoom() {
@@ -208,13 +285,13 @@ export function shareRoom() {
   
   if (navigator.share) {
     navigator.share({
-      title: 'XplainerLive',
+      title: 'XplainerLive Whiteboard',
       text: `Join my whiteboard with code ${code}!`,
       url: url
     }).catch(console.error);
   } else {
     navigator.clipboard.writeText(url)
-      .then(() => showToast('Link copied to clipboard', 'success'))
+      .then(() => showToast('Share link copied to clipboard!', 'success'))
       .catch(() => showToast('Failed to copy link', 'error'));
   }
 }

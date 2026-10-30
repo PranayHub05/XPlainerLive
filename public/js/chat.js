@@ -11,24 +11,24 @@ export function initChat() {
   const collapseBtn = document.getElementById('chat-collapse');
   const expandBtn = document.getElementById('chat-expand');
   
-  form.addEventListener('submit', (e) => {
+  form?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const text = input.value.trim();
+    const text = input ? input.value.trim() : '';
     if (text && text.length <= 1000) {
       sendWS(MessageType.CHAT_MESSAGE, { text });
-      input.value = '';
+      if (input) input.value = '';
     }
   });
 
-  input.addEventListener('keydown', (e) => {
+  input?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      form.dispatchEvent(new Event('submit'));
+      form?.dispatchEvent(new Event('submit'));
     }
   });
 
-  collapseBtn.addEventListener('click', () => setChatOpen(false));
-  expandBtn.addEventListener('click', () => setChatOpen(true));
+  collapseBtn?.addEventListener('click', () => setChatOpen(false));
+  expandBtn?.addEventListener('click', () => setChatOpen(true));
 
   onWSMessage(MessageType.CHAT_MESSAGE, addChatMessage);
 }
@@ -41,20 +41,21 @@ export function sendChatMessage(text) {
 
 export function addChatMessage(msg) {
   const container = document.getElementById('chat-messages');
+  if (!container) return;
   const wasAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 10;
   
   const safeText = sanitizeHTML(msg.text);
   const safeName = sanitizeHTML(msg.nickname || 'Unknown');
   const timeStr = getTimestamp();
   
-  const emptyState = container.querySelector('.chat-empty');
+  const emptyState = container.querySelector('.chat-empty-state');
   if (emptyState) emptyState.remove();
 
   const msgDiv = document.createElement('div');
   msgDiv.className = 'chat-message';
   msgDiv.innerHTML = `
     <div class="chat-message-header">
-      <span class="chat-message-sender" style="color: ${msg.color || '#ccc'}">${safeName}</span>
+      <span class="chat-message-sender" style="color: ${msg.color || '#F4FF24'}">${safeName}</span>
       <span class="chat-message-time">${timeStr}</span>
     </div>
     <div class="chat-message-text">${safeText}</div>
@@ -90,17 +91,15 @@ export function setChatOpen(open) {
   const badge = document.getElementById('chat-badge');
   
   if (open) {
-    panel.classList.remove('hidden');
-    expandBtn.classList.add('hidden');
+    panel?.classList.remove('hidden');
+    expandBtn?.classList.add('hidden');
     setState('ui.unreadChat', 0);
     if (badge) badge.classList.add('hidden');
     
     const container = document.getElementById('chat-messages');
-    container.scrollTop = container.scrollHeight;
+    if (container) container.scrollTop = container.scrollHeight;
   } else {
-    panel.classList.add('hidden');
-    expandBtn.classList.remove('hidden');
+    panel?.classList.add('hidden');
+    expandBtn?.classList.remove('hidden');
   }
-  
-  localStorage.setItem('xplainer_chat_open', open);
 }
