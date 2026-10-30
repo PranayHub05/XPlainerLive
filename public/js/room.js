@@ -34,14 +34,13 @@ export function createRoom(directNickname) {
 }
 
 function proceedCreate(nickname) {
-  showToast('Starting whiteboard...', 'info', 1800);
+  showToast('Connecting to room...', 'info', 1500);
   setState('localUser.nickname', nickname);
   localStorage.setItem('xplainer_nickname', nickname);
   
   let hasTransitioned = false;
 
   const enterWorkspace = (roomCode, userId, color, hostId, users, isOffline = false) => {
-    if (hasTransitioned) return;
     hasTransitioned = true;
     
     if (pendingFallbackTimer) {
@@ -61,13 +60,13 @@ function proceedCreate(nickname) {
     setupRoomListeners();
 
     if (isOffline) {
-      showToast('Whiteboard ready! (Start node server for live peer sync)', 'success', 3500);
+      showToast('Whiteboard ready (Offline mode)', 'info', 3000);
     } else {
-      showToast(`Room ${roomCode} created!`, 'success', 2500);
+      showToast(`Room ${roomCode} live synced!`, 'success', 2500);
     }
   };
 
-  // Attempt live WebSocket connection
+  // Connect WebSocket
   const url = getWSUrl();
   connectWS(url);
   
@@ -100,17 +99,17 @@ function proceedCreate(nickname) {
     unsubs.push(unsubConn);
   }
 
-  // Resilient fallback: If server doesn't respond in 650ms, open local whiteboard immediately
+  // Safety fallback: if server is truly offline after 3.5s, fall back into local mode
   pendingFallbackTimer = setTimeout(() => {
     if (!hasTransitioned) {
-      console.log('Server not responding immediately, launching offline/local whiteboard.');
+      console.log('Server unreachable, opening in local mode.');
       const localCode = generateRoomCode();
       const localId = generateUserId();
       const localColor = '#1558C9';
       const localUser = { id: localId, userId: localId, nickname, color: localColor };
       enterWorkspace(localCode, localId, localColor, localId, [localUser], true);
     }
-  }, 650);
+  }, 3500);
 }
 
 export function joinRoom(code, nickname) {
@@ -146,7 +145,6 @@ export function joinRoom(code, nickname) {
   let hasTransitioned = false;
 
   const enterWorkspace = (roomCode, userId, color, hostId, users, isOffline = false) => {
-    if (hasTransitioned) return;
     hasTransitioned = true;
 
     if (pendingFallbackTimer) {
@@ -166,7 +164,7 @@ export function joinRoom(code, nickname) {
     setupRoomListeners();
 
     if (isOffline) {
-      showToast(`Joined whiteboard ${roomCode} (Local mode)`, 'info', 3000);
+      showToast(`Joined whiteboard ${roomCode} (Offline mode)`, 'info', 3000);
     } else {
       showToast(`Connected to room ${roomCode}!`, 'success', 2500);
     }
@@ -201,8 +199,8 @@ export function joinRoom(code, nickname) {
       clearTimeout(pendingFallbackTimer);
       pendingFallbackTimer = null;
     }
-    showToast(payload.message || 'Error joining room', 'error');
-    disconnectWS();
+    showToast(payload.message || 'Room not found. Check code and try again.', 'error');
+    // NOTE: Keep WebSocket alive! Do not disconnect on room lookup error.
   };
   
   unsubs.push(onWSMessage(MessageType.ROOM_JOINED, onJoined));
@@ -224,16 +222,16 @@ export function joinRoom(code, nickname) {
     unsubs.push(unsubConn);
   }
 
-  // Fallback if server is not running: still let user into the board with the given code
+  // Fallback if server is not responding after 3.5s
   pendingFallbackTimer = setTimeout(() => {
     if (!hasTransitioned) {
-      console.log('Server unreachable for room join, entering in local mode.');
+      console.log('Server not responding to join, entering in local mode.');
       const localId = generateUserId();
       const localColor = '#F4FF24';
       const localUser = { id: localId, userId: localId, nickname, color: localColor };
       enterWorkspace(code, localId, localColor, localId, [localUser], true);
     }
-  }, 900);
+  }, 3500);
 }
 
 function setupRoomListeners() {

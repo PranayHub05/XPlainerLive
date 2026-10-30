@@ -73,13 +73,18 @@ wss.on('connection', (ws, req) => {
 
   ws.on('message', (message) => {
     try {
-      const data = JSON.parse(message);
+      const raw = typeof message === 'string' ? message : message.toString('utf8');
+      const data = JSON.parse(raw);
       if (!data.type) throw new Error('Message type missing');
       roomManager.handleMessage(ws, data, wss);
     } catch (err) {
       console.error(`Error processing message from ${ws.connId}:`, err);
       ws.send(JSON.stringify({ type: 'room:error', message: 'Invalid message format or error processing request' }));
     }
+  });
+
+  ws.on('error', (err) => {
+    console.error(`WebSocket error on ${ws.connId}:`, err.message);
   });
 
   ws.on('close', () => {

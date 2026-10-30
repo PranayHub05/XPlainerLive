@@ -1,29 +1,42 @@
 import { MessageType, createMessage, parseMessage } from './protocol.js';
-import { setState } from './state.js';
+import { getState, setState } from './state.js';
 
 let ws = null;
 let reconnectTimer = null;
 let reconnectAttempts = 0;
-const maxReconnectAttempts = 10;
+const maxReconnectAttempts = 15;
 let intentionalClose = false;
 const listeners = new Map();
 
 export function getWSUrl() {
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const host = window.location.host || 'localhost:3000';
+  let host = window.location.host;
+  if (!host || host === '' || window.location.protocol === 'file:') {
+    host = 'localhost:3000';
+  }
   return `${protocol}//${host}/ws`;
 }
 
 export function connectWS(url) {
+  if (!url) url = getWSUrl();
   intentionalClose = false;
+
   if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) {
     return ws;
   }
   
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+
+  setState('connection.ws', 'connecting');
+
   try {
     ws = new WebSocket(url);
   } catch (error) {
     console.error('Failed to create WebSocket', error);
+    setState('connection.ws', 'disconnected');
     return null;
   }
 
@@ -31,13 +44,22 @@ export function connectWS(url) {
     setState('connection.ws', 'connected');
     reconnectAttempts = 0;
     console.log('WebSocket connected');
+    
+    // Auto-rejoin if currently inside an active room
+    const state = getState();
+    if (state.room?.code && state.localUser?.nickname) {
+      sendWS(MessageType.ROOM_JOIN, {
+        roomCode: state.room.code,
+        nickname: state.localUser.nickname
+      });
+    }
   };
 
-  ws.onclose = () => {
+  ws.onclose = (event) => {
     if (!intentionalClose) {
-      const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000) + Math.random() * 1000;
+      const delay = Math.min(1000 * Math.pow(1.5, reconnectAttempts), 15000);
       setState('connection.ws', 'reconnecting');
-      console.log(`WebSocket closed. Reconnecting in ${Math.round(delay)}ms (Attempt ${reconnectAttempts + 1})`);
+      console.log(`WebSocket disconnected. Reconnecting in ${Math.round(delay)}ms (Attempt ${reconnectAttempts + 1}/${maxReconnectAttempts})`);
       
       if (reconnectAttempts < maxReconnectAttempts) {
         reconnectTimer = setTimeout(() => {
@@ -55,11 +77,12 @@ export function connectWS(url) {
   };
 
   ws.onerror = (error) => {
-    console.error('WebSocket error:', error);
+    console.error('WebSocket connection error:', error);
   };
 
   ws.onmessage = (event) => {
-    const msg = parseMessage(event.data);
+    const raw = typeof event.data === 'string' ? event.data : event.data.toString();
+    const msg = parseMessage(raw);
     if (!msg) return;
     
     const typeListeners = listeners.get(msg.type);
@@ -83,7 +106,7 @@ export function sendWS(type, payload) {
     ws.send(message);
     return true;
   }
-  console.warn('Cannot send WS message, socket not open');
+  console.warn(`Cannot send WS message (${type}), socket not open (state: ${ws ? ws.readyState : 'null'})`);
   return false;
 }
 
@@ -97,6 +120,7 @@ export function disconnectWS() {
     ws.close();
     ws = null;
   }
+  setState('connection.ws', 'disconnected');
 }
 
 export function onWSMessage(type, callback) {
