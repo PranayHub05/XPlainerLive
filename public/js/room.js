@@ -4,7 +4,7 @@ import { connectWS, sendWS, getWSUrl, onWSMessage, disconnectWS } from './websoc
 import { initWebRTC, closeAllPeers, createPeerConnection } from './webrtc.js';
 import { showModal, hideModal, showView, showToast } from './ui.js';
 import { setupWorkspace } from './app.js';
-import { getTimestamp } from './utils.js';
+import { getTimestamp, getRandomNickname } from './utils.js';
 
 let unsubs = [];
 
@@ -12,33 +12,24 @@ export function createRoom(directNickname) {
   let nickname = typeof directNickname === 'string' ? directNickname.trim() : '';
   
   if (!nickname) {
+    const heroInput = document.getElementById('hero-name-input');
+    if (heroInput && heroInput.value.trim()) {
+      nickname = heroInput.value.trim();
+    }
+  }
+
+  if (!nickname) {
     const inlineInput = document.getElementById('landing-creator-nickname');
     if (inlineInput && inlineInput.value.trim()) {
       nickname = inlineInput.value.trim();
     }
   }
 
-  if (nickname) {
-    proceedCreate(nickname);
-  } else {
-    showModal('nickname-modal');
-    const input = document.getElementById('creator-nickname-input');
-    if (input) {
-      input.value = localStorage.getItem('xplainer_nickname') || '';
-      input.focus();
-    }
-    const submitBtn = document.getElementById('creator-nickname-submit');
-    if (submitBtn) {
-      submitBtn.onclick = (e) => {
-        if (e) e.preventDefault();
-        const nick = input ? input.value.trim() : '';
-        if (nick) {
-          hideModal('nickname-modal');
-          proceedCreate(nick);
-        }
-      };
-    }
+  if (!nickname) {
+    nickname = localStorage.getItem('xplainer_nickname') || getRandomNickname();
   }
+
+  proceedCreate(nickname);
 }
 
 function proceedCreate(nickname) {
@@ -88,7 +79,31 @@ function proceedCreate(nickname) {
 }
 
 export function joinRoom(code, nickname) {
-  code = code.toUpperCase();
+  code = (code || '').toUpperCase().trim();
+  
+  if (!code || code.length !== 6) {
+    showToast('Please enter a valid 6-character room code', 'error');
+    return;
+  }
+
+  if (!nickname) {
+    const heroInput = document.getElementById('hero-name-input');
+    if (heroInput && heroInput.value.trim()) {
+      nickname = heroInput.value.trim();
+    }
+  }
+
+  if (!nickname) {
+    const inlineInput = document.getElementById('landing-join-nickname');
+    if (inlineInput && inlineInput.value.trim()) {
+      nickname = inlineInput.value.trim();
+    }
+  }
+
+  if (!nickname) {
+    nickname = localStorage.getItem('xplainer_nickname') || getRandomNickname();
+  }
+
   setState('localUser.nickname', nickname);
   localStorage.setItem('xplainer_nickname', nickname);
   
@@ -170,7 +185,7 @@ function setupRoomListeners() {
   unsubs.push(onWSMessage(MessageType.ROOM_HOST, (payload) => {
     setState('room.hostId', payload.hostId);
     if (payload.hostId === getState().localUser.id) {
-      showToast('You are now the host', 'success');
+      showToast('You are now the room host', 'success');
     }
   }));
 }
@@ -193,7 +208,7 @@ export function shareRoom() {
   
   if (navigator.share) {
     navigator.share({
-      title: 'XPlainerLive',
+      title: 'XplainerLive',
       text: `Join my whiteboard with code ${code}!`,
       url: url
     }).catch(console.error);

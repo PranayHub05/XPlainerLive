@@ -9,9 +9,16 @@ import { initChat, toggleChat } from './chat.js';
 import { clearBoard, updateObject } from './whiteboard.js';
 
 export function initUI() {
-  // Setup Random Nicknames
+  console.log('initUI executing: attaching all button handlers');
+
+  // Setup Initial Friendly Nickname
   const defaultNick = localStorage.getItem('xplainer_nickname') || getRandomNickname();
   
+  const heroNameInput = document.getElementById('hero-name-input');
+  if (heroNameInput && !heroNameInput.value) {
+    heroNameInput.value = defaultNick;
+  }
+
   const creatorNickInput = document.getElementById('landing-creator-nickname');
   if (creatorNickInput && !creatorNickInput.value) {
     creatorNickInput.value = defaultNick;
@@ -22,50 +29,89 @@ export function initUI() {
     joinNickInput.value = defaultNick;
   }
 
-  // Randomize buttons
+  // Sync hero input with section inputs
+  heroNameInput?.addEventListener('input', (e) => {
+    const val = e.target.value;
+    if (creatorNickInput) creatorNickInput.value = val;
+    if (joinNickInput) joinNickInput.value = val;
+    localStorage.setItem('xplainer_nickname', val);
+  });
+
+  // Randomize button handlers
   document.getElementById('btn-randomize-create')?.addEventListener('click', () => {
-    if (creatorNickInput) {
-      creatorNickInput.value = getRandomNickname();
-      creatorNickInput.focus();
-    }
+    const newName = getRandomNickname();
+    if (creatorNickInput) creatorNickInput.value = newName;
+    if (heroNameInput) heroNameInput.value = newName;
+    localStorage.setItem('xplainer_nickname', newName);
   });
 
   document.getElementById('btn-randomize-join')?.addEventListener('click', () => {
-    if (joinNickInput) {
-      joinNickInput.value = getRandomNickname();
-      joinNickInput.focus();
-    }
+    const newName = getRandomNickname();
+    if (joinNickInput) joinNickInput.value = newName;
+    if (heroNameInput) heroNameInput.value = newName;
+    localStorage.setItem('xplainer_nickname', newName);
   });
 
-  // Dedicated Section: Instant Create Room
-  const handleInstantCreate = () => {
-    const nick = (creatorNickInput ? creatorNickInput.value.trim() : '') || getRandomNickname();
-    createRoom(nick);
+  // ==========================================
+  // ROOM CREATION BUTTON HANDLERS
+  // ==========================================
+
+  const executeCreate = () => {
+    const name = (heroNameInput?.value.trim()) || 
+                 (creatorNickInput?.value.trim()) || 
+                 localStorage.getItem('xplainer_nickname') || 
+                 getRandomNickname();
+    createRoom(name);
   };
 
-  document.getElementById('instant-create-submit')?.addEventListener('click', handleInstantCreate);
-  document.getElementById('create-room-btn')?.addEventListener('click', () => {
-    // If nickname already in inline input, create directly, else scroll to section
-    const sec = document.getElementById('create-room-section');
-    if (sec) {
-      sec.scrollIntoView({ behavior: 'smooth' });
-      creatorNickInput?.focus();
-    } else {
-      createRoom();
-    }
+  // Header "Create Room"
+  document.getElementById('btn-header-create')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    executeCreate();
   });
 
-  document.getElementById('create-room-hero-btn')?.addEventListener('click', () => {
-    const sec = document.getElementById('create-room-section');
-    if (sec) {
-      sec.scrollIntoView({ behavior: 'smooth' });
-      creatorNickInput?.focus();
-    } else {
-      createRoom();
-    }
+  // Hero Capsule "Create Room"
+  document.getElementById('hero-create-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    executeCreate();
   });
 
-  // Dedicated Section: Join Room
+  // Dedicated Section "Start New Whiteboard"
+  document.getElementById('instant-create-submit')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    executeCreate();
+  });
+
+  // ==========================================
+  // ROOM JOINING BUTTON HANDLERS
+  // ==========================================
+
+  const executeOpenJoin = () => {
+    const sec = document.getElementById('join-room-section');
+    if (sec && window.innerWidth > 768) {
+      sec.scrollIntoView({ behavior: 'smooth' });
+      const firstInput = document.querySelector('#landing-code-container .landing-code-input');
+      firstInput?.focus();
+    } else {
+      showModal('join-modal');
+      const firstInput = document.querySelector('#join-code-container .join-code-input');
+      firstInput?.focus();
+    }
+  };
+
+  // Header "Join a Room →"
+  document.getElementById('btn-header-join')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    executeOpenJoin();
+  });
+
+  // Hero Capsule "Join a Room →"
+  document.getElementById('hero-join-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    executeOpenJoin();
+  });
+
+  // Dedicated Section Code Inputs
   const landingCodeContainer = document.getElementById('landing-code-container');
   if (landingCodeContainer) {
     initCodeInputs(landingCodeContainer, () => {
@@ -82,7 +128,7 @@ export function initUI() {
     const code = getLandingCode();
     const btn = document.getElementById('landing-join-submit');
     if (btn) {
-      btn.innerHTML = `<span class="material-symbols-outlined">login</span> Join Canvas (${code.padEnd(6, '-')})`;
+      btn.innerHTML = `<span class="material-symbols-outlined">login</span> Join Whiteboard (${code.padEnd(6, '-')})`;
     }
   }
 
@@ -106,7 +152,7 @@ export function initUI() {
     }
   });
 
-  // Shuffle button on landing page
+  // Shuffle sample code
   document.getElementById('landing-shuffle-code')?.addEventListener('click', () => {
     const code = generateRoomCode();
     const inputs = document.querySelectorAll('#landing-code-container .landing-code-input');
@@ -118,14 +164,17 @@ export function initUI() {
   });
 
   // Landing Join Submit
-  document.getElementById('landing-join-submit')?.addEventListener('click', () => {
+  document.getElementById('landing-join-submit')?.addEventListener('click', (e) => {
+    e.preventDefault();
     const code = getLandingCode();
-    const nickname = (joinNickInput ? joinNickInput.value.trim() : '') || getRandomNickname();
-    
+    const name = (joinNickInput?.value.trim()) || 
+                 (heroNameInput?.value.trim()) || 
+                 getRandomNickname();
+
     if (code.length === 6) {
-      joinRoom(code, nickname);
+      joinRoom(code, name);
     } else {
-      showToast('Please enter all 6 characters of the room code', 'error');
+      showToast('Please enter the full 6-letter room code', 'error');
       const inputs = document.querySelectorAll('#landing-code-container .landing-code-input');
       for (const input of inputs) {
         if (!input.value) {
@@ -136,19 +185,31 @@ export function initUI() {
     }
   });
 
-  // Hero Join button: smooth scroll to Join Section
-  document.getElementById('landing-join-btn')?.addEventListener('click', () => {
-    const sec = document.getElementById('join-room-section');
-    if (sec) {
-      sec.scrollIntoView({ behavior: 'smooth' });
-      const firstInput = document.querySelector('#landing-code-container .landing-code-input');
-      firstInput?.focus();
-    } else {
-      showModal('join-modal');
-    }
+  // ==========================================
+  // MOBILE DRAWER MENU
+  // ==========================================
+  const mobileDrawer = document.getElementById('mobile-drawer');
+  document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {
+    mobileDrawer?.classList.remove('hidden');
   });
 
-  // Join Modal (for URL join links)
+  document.getElementById('mobile-drawer-close')?.addEventListener('click', () => {
+    mobileDrawer?.classList.add('hidden');
+  });
+
+  document.getElementById('mobile-create-btn')?.addEventListener('click', () => {
+    mobileDrawer?.classList.add('hidden');
+    executeCreate();
+  });
+
+  document.getElementById('mobile-join-btn')?.addEventListener('click', () => {
+    mobileDrawer?.classList.add('hidden');
+    showModal('join-modal');
+  });
+
+  // ==========================================
+  // JOIN MODAL HANDLERS
+  // ==========================================
   const joinCodeContainer = document.getElementById('join-code-container');
   if (joinCodeContainer) {
     initCodeInputs(joinCodeContainer, () => {
@@ -159,19 +220,24 @@ export function initUI() {
     });
   }
   
-  document.getElementById('join-submit')?.addEventListener('click', () => {
+  document.getElementById('join-submit')?.addEventListener('click', (e) => {
+    e.preventDefault();
     const inputs = document.querySelectorAll('#join-code-container .join-code-input');
     const code = Array.from(inputs).map(i => i.value).join('').toUpperCase();
-    const nickname = document.getElementById('join-nickname')?.value.trim() || getRandomNickname();
-    if (code.length === 6 && nickname) {
+    const nickname = document.getElementById('join-nickname')?.value.trim() || 
+                     heroNameInput?.value.trim() || 
+                     getRandomNickname();
+
+    if (code.length === 6) {
       hideModal('join-modal');
       joinRoom(code, nickname);
-    } else if (code.length !== 6) {
-      showToast('Room code must be 6 characters', 'error');
+    } else {
+      showToast('Room code must be 6 letters', 'error');
     }
   });
   
   document.getElementById('join-back')?.addEventListener('click', () => hideModal('join-modal'));
+  
   document.getElementById('join-paste-btn')?.addEventListener('click', async () => {
     try {
       const text = await navigator.clipboard.readText();
@@ -187,7 +253,6 @@ export function initUI() {
     }
   });
 
-  // Nickname preview
   document.getElementById('join-nickname')?.addEventListener('input', (e) => {
     const preview = document.getElementById('join-avatar-preview');
     const val = e.target.value.trim();
@@ -196,7 +261,7 @@ export function initUI() {
     }
   });
 
-  // Nickname Modal
+  // Nickname Modal (fallback)
   document.getElementById('creator-nickname-submit')?.addEventListener('click', () => {
     const nickname = document.getElementById('creator-nickname-input')?.value.trim();
     if (nickname) {
@@ -210,7 +275,9 @@ export function initUI() {
     }
   });
 
-  // Top Bar Actions in Workspace
+  // ==========================================
+  // WORKSPACE TOPBAR & ACTIONS
+  // ==========================================
   document.getElementById('copy-code-btn')?.addEventListener('click', () => {
     const code = getState().room?.code;
     if (code) {
@@ -218,6 +285,7 @@ export function initUI() {
       showToast('Room code copied to clipboard!', 'success');
     }
   });
+
   document.getElementById('room-code-display')?.addEventListener('click', () => {
     const code = getState().room?.code;
     if (code) {
@@ -229,7 +297,7 @@ export function initUI() {
   document.getElementById('share-btn')?.addEventListener('click', shareRoom);
   document.getElementById('leave-btn')?.addEventListener('click', leaveRoom);
 
-  // Toolbar Tool Buttons (supports all data-tool attributes)
+  // Toolbar Tools
   const toolBtns = document.querySelectorAll('#toolbar [data-tool]');
   toolBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -244,7 +312,7 @@ export function initUI() {
   document.getElementById('bottom-undo')?.addEventListener('click', undo);
   document.getElementById('bottom-redo')?.addEventListener('click', redo);
 
-  // Zoom and Fit
+  // Zoom & Reset
   document.getElementById('zoom-in')?.addEventListener('click', () => handleZoom(1.2));
   document.getElementById('zoom-in-bottom')?.addEventListener('click', () => handleZoom(1.2));
   document.getElementById('zoom-out')?.addEventListener('click', () => handleZoom(0.8));
@@ -306,8 +374,11 @@ export function initUI() {
       document.querySelectorAll('.modal-overlay:not(.hidden)').forEach(modal => {
         hideModal(modal.id);
       });
+      mobileDrawer?.classList.add('hidden');
     }
   });
+
+  console.log('initUI complete: all listeners attached');
 }
 
 function initStylePanel() {
@@ -339,7 +410,7 @@ function initStylePanel() {
   opacityInput?.addEventListener('input', (e) => applyStyleUpdate({ opacity: Number(e.target.value) }));
   fontSizeInput?.addEventListener('input', (e) => applyStyleUpdate({ fontSize: Number(e.target.value) }));
 
-  // Color Presets - Midnight Black, Electric Cobalt, Acid Lime and companions
+  // Color Presets
   document.querySelectorAll('.color-preset-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const color = btn.dataset.color;

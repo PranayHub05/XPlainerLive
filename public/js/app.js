@@ -13,7 +13,12 @@ import { initPresence, updateDrawingStatus } from './presence.js';
 import { setChatOpen } from './chat.js';
 import { initBackground, stopBackground } from './background.js';
 
+let isInitialized = false;
+
 export function init() {
+  if (isInitialized) return;
+  isInitialized = true;
+
   console.log('XPlainerLive initializing...');
   
   // Load preferences
@@ -112,4 +117,13 @@ export function setupWorkspace() {
   onWSMessage(MessageType.BOARD_CLEAR, () => {
     clearBoard(false);
   });
+}
+
+// Auto-run when DOM is ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => init());
+  } else {
+    init();
+  }
 }

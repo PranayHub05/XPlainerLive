@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>XPlainerLive — Minimalist Real-Time Collaborative Whiteboard</title>
-  <meta name="description" content="Instant real-time multiplayer vector whiteboard with zero login. Explain ideas visually with WebRTC DataChannels.">
+  <title>XplainerLive — A Whiteboard That Brings People Together</title>
+  <meta name="description" content="Explain complex ideas visually, together in real-time. Instant collaborative whiteboard with no login.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
 
   <link rel="stylesheet" href="/css/variables.css">
@@ -34,501 +34,433 @@
     
     <div class="ambient-glow-cobalt-1"></div>
     <div class="ambient-glow-lime-1"></div>
-    <div class="ambient-glow-cobalt-2"></div>
-    <div class="ambient-glow-lime-2"></div>
-    <div class="dot-grid-overlay"></div>
 
     <!-- Header Navigation -->
     <header class="landing-header">
-      <a href="#overview" class="logo">
-        <div class="logo-badge">
-          <!-- Monogram Icon SVG -->
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M4 4L20 20" stroke="#F4FF24" stroke-width="3" stroke-linecap="round"/>
-            <path d="M20 4L4 20" stroke="#1558C9" stroke-width="3" stroke-linecap="round"/>
-            <circle cx="12" cy="12" r="3" fill="#F4FF24"/>
+      <a href="#overview" class="brand-logo-link">
+        <div class="brand-icon">
+          <!-- Squiggle Neon Loop Knot matching reference image -->
+          <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
+            <!-- Electric Cobalt Blue loop -->
+            <path d="M12 28 C 6 22, 10 12, 18 10 C 26 8, 30 18, 24 26 C 18 34, 12 30, 22 34" stroke="#1558C9" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Acid Lime Neon Crossing stroke -->
+            <path d="M26 8 L14 32" stroke="#F4FF24" stroke-width="3.5" stroke-linecap="round"/>
           </svg>
         </div>
-        <div><span class="xplainer">XPlainer</span><span class="live">Live</span></div>
+        <div class="brand-name">Xplainer<span class="live-accent">Live</span></div>
       </a>
       
-      <nav class="landing-nav">
-        <a href="#overview">Overview</a>
-        <a href="#create-room-section" class="nav-highlight">Create Room</a>
-        <a href="#join-room-section">Join Room</a>
-        <a href="#features">Features</a>
-        <a href="#how-it-works">How It Works</a>
-      </nav>
-
-      <div class="landing-header-actions">
-        <button id="create-room-btn" class="btn-lime">
-          <span class="material-symbols-outlined">bolt</span>
-          <span>Launch Canvas</span>
+      <div class="landing-header-right">
+        <button id="btn-header-create" class="btn-header-create">
+          <span class="material-symbols-outlined" style="font-size:18px;">add</span>
+          <span>Create Room</span>
+        </button>
+        <button id="btn-header-join" class="btn-header-join">
+          <span>Join a Room</span>
+          <span style="font-weight:900;">&rarr;</span>
+        </button>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Open Menu">
+          <span class="material-symbols-outlined">menu</span>
         </button>
       </div>
     </header>
 
-    <!-- Hero Section -->
-    <section id="overview" class="hero-section">
-      <div class="live-badge">
-        <span class="status-beacon"></span>
-        <span>Sub-15ms WebRTC • Zero Login • 100% Ephemeral</span>
+    <!-- Mobile Slide Drawer Menu -->
+    <div id="mobile-drawer" class="mobile-drawer-overlay hidden">
+      <div class="mobile-drawer-header">
+        <div class="brand-name">Xplainer<span class="live-accent">Live</span></div>
+        <button id="mobile-drawer-close" class="btn-icon" style="color:#ffffff;">
+          <span class="material-symbols-outlined">close</span>
+        </button>
       </div>
-
-      <h1>
-        Explain complex ideas visually,<br>
-        <span class="gradient-text">together in real-time.</span>
-      </h1>
-      
-      <p class="hero-subtitle">
-        A minimalist, high-velocity collaborative whiteboard with sub-millisecond sync.
-        No passwords, no tracking, and zero account setup.
-      </p>
-      
-      <div class="hero-buttons">
-        <button id="create-room-hero-btn" class="btn-lime hero-cta-btn">
+      <div class="mobile-drawer-links">
+        <button id="mobile-create-btn" class="btn-lime w-full" style="padding:14px;justify-content:center;">
           <span class="material-symbols-outlined">add_circle</span>
-          Create a Room
+          <span>Create New Room</span>
         </button>
-        <button id="landing-join-btn" class="btn-secondary hero-cta-btn">
-          <span class="material-symbols-outlined">pin</span>
-          Join with Code
+        <button id="mobile-join-btn" class="btn-secondary w-full" style="padding:14px;justify-content:center;">
+          <span class="material-symbols-outlined">login</span>
+          <span>Join with Room Code</span>
         </button>
       </div>
+    </div>
 
-      <div class="stats-strip">
-        <div class="stat-card">
-          <span class="material-symbols-outlined stat-icon">speed</span>
-          <span>60 FPS Vector Canvas</span>
+    <!-- Hero Section (Exact 2-column layout matching reference image) -->
+    <section id="overview" class="hero-wrapper">
+      
+      <!-- Left Column: Heading, Subtitle & Capsule Input Bar -->
+      <div class="hero-left-col">
+        <div class="hero-tag">DRAW &middot; THINK &middot; TOGETHER</div>
+        
+        <h1 class="hero-heading">
+          Explain complex ideas visually,<br>
+          <span class="text-cobalt">together</span> <span class="text-lime">in real-time.</span>
+        </h1>
+        
+        <p class="hero-subtitle">
+          XplainerLive lets you create or join a room and collaborate on a whiteboard in real time — no login, no friction. Just ideas, together.
+        </p>
+        
+        <!-- Glowing Capsule Bar matching user's design -->
+        <div class="hero-capsule-bar">
+          <div class="capsule-input-wrap" style="display:flex;align-items:center;flex:1;">
+            <span class="material-symbols-outlined capsule-icon">person_outline</span>
+            <input id="hero-name-input" class="capsule-input" placeholder="Enter your name" maxlength="24">
+          </div>
+          <div class="capsule-actions">
+            <button id="hero-create-btn" class="btn-capsule-create" type="button">
+              Create Room
+            </button>
+            <button id="hero-join-btn" class="btn-capsule-join" type="button">
+              <span>Join a Room</span>
+              <span style="font-size:16px;font-weight:900;">&rarr;</span>
+            </button>
+          </div>
         </div>
-        <div class="stat-card">
-          <span class="material-symbols-outlined stat-icon">bolt</span>
-          <span>&lt; 15ms P2P Sync</span>
-        </div>
-        <div class="stat-card">
-          <span class="material-symbols-outlined stat-icon">lock_open_right</span>
-          <span>0 Login Requirements</span>
-        </div>
-        <div class="stat-card">
-          <span class="material-symbols-outlined stat-icon">hub</span>
-          <span>Direct WebRTC Mesh</span>
+      </div>
+
+      <!-- Right Column: 3D Tablet Mockup with Glowing Neon Tubes -->
+      <div class="hero-right-col">
+        <div class="mockup-3d-scene">
+          
+          <!-- Electric Cobalt Glowing Loop around device -->
+          <svg class="neon-tube-blue-loop" viewBox="0 0 540 480" fill="none">
+            <defs>
+              <filter id="glowBlue" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="8" result="blur1" />
+                <feGaussianBlur stdDeviation="16" result="blur2" />
+                <feMerge>
+                  <feMergeNode in="blur2" />
+                  <feMergeNode in="blur1" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <path d="M420 80 C 560 160, 480 380, 260 370 C 90 360, 40 220, 160 140 C 250 80, 360 40, 440 100" stroke="#1558C9" stroke-width="7" stroke-linecap="round" filter="url(#glowBlue)"/>
+            <path d="M420 80 C 560 160, 480 380, 260 370 C 90 360, 40 220, 160 140 C 250 80, 360 40, 440 100" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+
+          <!-- Acid Lime Glowing Trail on Ground -->
+          <svg class="neon-trail-lime-ground" viewBox="0 0 620 180" fill="none">
+            <defs>
+              <filter id="glowLime" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="7" result="blur1" />
+                <feGaussianBlur stdDeviation="14" result="blur2" />
+                <feMerge>
+                  <feMergeNode in="blur2" />
+                  <feMergeNode in="blur1" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <path d="M20 160 C 140 170, 240 70, 380 110 C 480 140, 560 60, 610 20" stroke="#F4FF24" stroke-width="6.5" stroke-linecap="round" filter="url(#glowLime)"/>
+            <path d="M20 160 C 140 170, 240 70, 380 110 C 480 140, 560 60, 610 20" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+
+          <!-- Tablet Device Frame -->
+          <div class="device-tablet">
+            <div class="phone-dynamic-island"></div>
+            
+            <div class="device-screen">
+              <div class="screen-dot-grid"></div>
+
+              <!-- Top Bar inside device -->
+              <div class="screen-topbar">
+                <div class="screen-logo">
+                  <svg width="18" height="18" viewBox="0 0 40 40" fill="none">
+                    <path d="M12 28 C 6 22, 10 12, 18 10 C 26 8, 30 18, 24 26 C 18 34, 12 30, 22 34" stroke="#1558C9" stroke-width="4"/>
+                    <path d="M26 8 L14 32" stroke="#F4FF24" stroke-width="4"/>
+                  </svg>
+                  <span>Xplainer<span style="color:#2972f4;">Live</span></span>
+                </div>
+
+                <div class="screen-toolbar-pill">
+                  <span class="material-symbols-outlined screen-tool-icon active">near_me</span>
+                  <span class="material-symbols-outlined screen-tool-icon">edit</span>
+                  <span class="material-symbols-outlined screen-tool-icon">crop_square</span>
+                  <span class="material-symbols-outlined screen-tool-icon">radio_button_unchecked</span>
+                  <span class="material-symbols-outlined screen-tool-icon">title</span>
+                  <span class="material-symbols-outlined screen-tool-icon">image</span>
+                  
+                  <div class="screen-color-dots">
+                    <span class="screen-color-dot" style="background:#2972f4;"></span>
+                    <span class="screen-color-dot" style="background:#4ade80;"></span>
+                    <span class="screen-color-dot" style="background:#F4FF24;"></span>
+                    <span class="screen-color-dot" style="background:#f472b6;"></span>
+                  </div>
+                </div>
+
+                <div class="screen-avatars">
+                  <div class="screen-avatar" style="background:#2972f4;">P</div>
+                  <div class="screen-avatar" style="background:#F4FF24;color:#030407;">S</div>
+                  <div class="screen-avatar" style="background:#38bdf8;">A</div>
+                </div>
+              </div>
+
+              <!-- Whiteboard Drawing Artwork (matching reference image) -->
+              <div class="screen-canvas-drawing">
+                <svg class="whiteboard-svg-art" viewBox="0 0 600 360" fill="none">
+                  
+                  <!-- Glowing Lightbulb in Acid Lime & White -->
+                  <g transform="translate(240, 90)">
+                    <!-- Bulb Outline in Acid Lime -->
+                    <path d="M50 20 C 25 20, 15 45, 25 70 C 32 88, 36 95, 38 110 L 62 110 C 64 95, 68 88, 75 70 C 85 45, 75 20, 50 20 Z" stroke="#F4FF24" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    <!-- Filament inside bulb -->
+                    <path d="M42 65 C 44 48, 56 48, 58 65 C 50 78, 50 82, 50 110" stroke="#ffffff" stroke-width="2.5" fill="none"/>
+                    <!-- Base screw thread -->
+                    <path d="M40 115 L 60 115 M42 122 L 58 122 M45 129 L 55 129" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- Light rays -->
+                    <line x1="50" y1="5" x2="50" y2="-5" stroke="#F4FF24" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="20" y1="15" x2="12" y2="8" stroke="#F4FF24" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="80" y1="15" x2="88" y2="8" stroke="#F4FF24" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="5" y1="45" x2="-5" y2="45" stroke="#F4FF24" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="95" y1="45" x2="105" y2="45" stroke="#F4FF24" stroke-width="2.5" stroke-linecap="round"/>
+                  </g>
+
+                  <!-- "Ideas" Ellipse in Blue -->
+                  <ellipse cx="430" cy="95" rx="42" ry="24" stroke="#1558C9" stroke-width="2.5" fill="none"/>
+                  <text x="430" y="100" font-family="'Inter', sans-serif" font-size="13" font-weight="600" fill="#ffffff" text-anchor="middle">Ideas</text>
+                  <path d="M420 125 C 415 155, 380 180, 420 210" stroke="#2972f4" stroke-width="2" stroke-linecap="round" fill="none"/>
+                  <polyline points="414,202 422,212 428,204" stroke="#2972f4" stroke-width="2" fill="none"/>
+
+                  <!-- Checkbox List on left -->
+                  <rect x="50" y="80" width="70" height="85" rx="6" stroke="#ffffff" stroke-width="2" fill="none"/>
+                  <circle cx="65" cy="98" r="4" stroke="#F4FF24" stroke-width="2" fill="none"/>
+                  <line x1="76" y1="98" x2="108" y2="98" stroke="#8b9cb8" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="65" cy="118" r="4" stroke="#F4FF24" stroke-width="2" fill="none"/>
+                  <line x1="76" y1="118" x2="108" y2="118" stroke="#8b9cb8" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="65" cy="138" r="4" stroke="#F4FF24" stroke-width="2" fill="none"/>
+                  <line x1="76" y1="138" x2="108" y2="138" stroke="#8b9cb8" stroke-width="2" stroke-linecap="round"/>
+
+                  <!-- Connecting curved arrows -->
+                  <path d="M125 120 C 180 120, 200 130, 230 140" stroke="#ffffff" stroke-width="2" fill="none"/>
+                  <path d="M85 170 C 85 200, 110 215, 140 215" stroke="#ffffff" stroke-width="2" fill="none"/>
+
+                  <!-- Sticky note card -->
+                  <polygon points="120,200 145,195 140,225 115,228" fill="#F4FF24" opacity="0.9"/>
+                  <line x1="122" y1="210" x2="138" y2="208" stroke="#030407" stroke-width="2"/>
+
+                  <!-- Lower card & line chart -->
+                  <rect x="40" y="240" width="85" height="55" rx="6" stroke="#ffffff" stroke-width="2" fill="none"/>
+                  <line x1="52" y1="260" x2="90" y2="260" stroke="#8b9cb8" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="52" y1="275" x2="75" y2="275" stroke="#8b9cb8" stroke-width="2" stroke-linecap="round"/>
+
+                  <!-- Line Graph Card -->
+                  <rect x="390" y="225" width="95" height="60" rx="6" stroke="#ffffff" stroke-width="2" fill="none"/>
+                  <path d="M405 265 L 425 245 L 445 258 L 470 238" stroke="#F4FF24" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+                  <!-- Words on right: Plan, Sketch, Build, Together -->
+                  <g transform="translate(480, 180)">
+                    <text x="0" y="0" font-family="'Inter', sans-serif" font-size="12" font-weight="500" fill="#ffffff">Plan</text>
+                    <text x="0" y="20" font-family="'Inter', sans-serif" font-size="12" font-weight="500" fill="#ffffff">Sketch</text>
+                    <text x="0" y="40" font-family="'Inter', sans-serif" font-size="12" font-weight="500" fill="#ffffff">Build</text>
+                    <text x="0" y="60" font-family="'Inter', sans-serif" font-size="12" font-weight="600" fill="#ffffff">Together</text>
+                    <!-- Curly bracket -->
+                    <path d="M-10 -8 C -16 10, -16 20, -20 28 C -16 36, -16 46, -10 65" stroke="#2972f4" stroke-width="2" fill="none"/>
+                  </g>
+                </svg>
+
+                <!-- Cursors matching reference image: Pranay, Suhana, Arjun -->
+                <div class="mock-cursor-tag cursor-pranay">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#1558C9"><path d="M4 0l16 12-7.5 1.5 4 8.5-3 1.5-4-8.5-5.5 5.5v-20z"/></svg>
+                  <span class="tag-pill">Pranay</span>
+                </div>
+
+                <div class="mock-cursor-tag cursor-suhana">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#F4FF24"><path d="M4 0l16 12-7.5 1.5 4 8.5-3 1.5-4-8.5-5.5 5.5v-20z"/></svg>
+                  <span class="tag-pill">Suhana</span>
+                </div>
+
+                <div class="mock-cursor-tag cursor-arjun">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#2972f4"><path d="M4 0l16 12-7.5 1.5 4 8.5-3 1.5-4-8.5-5.5 5.5v-20z"/></svg>
+                  <span class="tag-pill">Arjun</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
 
-    <!-- Depth of Field Interactive Showcase Preview -->
-    <div class="showcase-wrapper">
-      <div class="canvas-showcase">
-        <div class="showcase-grid"></div>
-        
-        <div class="showcase-topbar">
-          <div class="showcase-chip">
-            <span class="status-beacon"></span>
-            <span>ROOM // XP-9042 • 3 PEERS LIVE</span>
-          </div>
-          <div style="display:flex;gap:6px;">
-            <div class="avatar" style="background:#1558C9;border-color:#F4FF24;">A</div>
-            <div class="avatar" style="background:#F4FF24;color:#030407;">E</div>
-            <div class="avatar" style="background:#38bdf8;">K</div>
-          </div>
-        </div>
-
-        <!-- SVG Vector Drawing on Showcase -->
-        <svg class="showcase-svg-layer" viewBox="0 0 1000 420" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="laserGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#1558C9" stop-opacity="0.8"/>
-              <stop offset="100%" stop-color="#F4FF24" stop-opacity="0.8"/>
-            </linearGradient>
-            <filter id="laserGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-          <path d="M190 145 C 320 100, 390 220, 520 180" stroke="url(#laserGrad)" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="6,4" filter="url(#laserGlow)"/>
-          <path d="M570 215 C 650 260, 710 180, 780 230" stroke="#1558C9" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-          <circle cx="520" cy="180" r="5" fill="#F4FF24"/>
-          <circle cx="190" cy="145" r="5" fill="#1558C9"/>
-          <circle cx="780" cy="230" r="5" fill="#F4FF24"/>
-        </svg>
-
-        <!-- Simulated Floating Workspace Nodes -->
-        <div class="showcase-node" style="top:115px; left:80px;">
-          <span class="node-dot"></span>
-          <span>Authentication Flow</span>
-        </div>
-        
-        <div class="showcase-node node-lime" style="top:150px; left:440px;">
-          <span class="node-dot"></span>
-          <span>Real-time Mesh Engine</span>
-        </div>
-
-        <div class="showcase-node" style="top:210px; right:90px;">
-          <span class="node-dot"></span>
-          <span>Vector Storage</span>
-        </div>
-
-        <!-- Simulated Cursors with Labels -->
-        <div class="showcase-cursor cursor-alex" style="top:190px; left:480px; animation: floatSlow 5s infinite;">
-          <svg viewBox="0 0 24 24"><path d="M4 0l16 12-7.5 1.5 4 8.5-3 1.5-4-8.5-5.5 5.5v-20z"/></svg>
-          <span>Alex (Host)</span>
-        </div>
-
-        <div class="showcase-cursor cursor-elena" style="top:110px; left:220px; animation: floatReverse 6s infinite;">
-          <svg viewBox="0 0 24 24"><path d="M4 0l16 12-7.5 1.5 4 8.5-3 1.5-4-8.5-5.5 5.5v-20z"/></svg>
-          <span>Elena</span>
-        </div>
-
-        <!-- Mini Mock Tools -->
-        <div class="showcase-mini-toolbar">
-          <div class="showcase-mini-tool active"><span class="material-symbols-outlined" style="font-size:16px;">edit</span></div>
-          <div class="showcase-mini-tool"><span class="material-symbols-outlined" style="font-size:16px;">crop_square</span></div>
-          <div class="showcase-mini-tool"><span class="material-symbols-outlined" style="font-size:16px;">arrow_forward</span></div>
-          <div class="showcase-mini-tool"><span class="material-symbols-outlined" style="font-size:16px;">title</span></div>
-        </div>
-      </div>
-    </div>
-
     <!-- SEPARATE SECTIONS FOR CREATING A ROOM AND JOINING A ROOM -->
-    <div class="room-actions-wrapper">
+    <div class="room-sections-container">
       
       <!-- ========================================== -->
       <!-- SECTION 1: CREATE A ROOM                  -->
       <!-- ========================================== -->
-      <section id="create-room-section" class="create-room-section">
-        <div class="section-header">
-          <span class="section-tag">Instant Provisioning</span>
-          <h2>Create a New Room</h2>
-          <p>Spin up an ephemeral whiteboard room in milliseconds. Zero login, zero signup, zero tracking.</p>
+      <section id="create-room-section" class="room-feature-card card-create">
+        <div class="card-content">
+          <span class="section-tag">Start Fresh</span>
+          <h3>Create a Room</h3>
+          <p class="card-desc">
+            Start a fresh collaborative whiteboard in one click. You'll get a simple 6-letter room code to share with anyone you want to draw with.
+          </p>
+
+          <div class="form-group" style="margin-bottom:20px;">
+            <label for="landing-creator-nickname" class="form-label">Your Name</label>
+            <div class="nickname-input-wrap">
+              <input id="landing-creator-nickname" class="input-field" placeholder="Enter your name" maxlength="24">
+              <button id="btn-randomize-create" class="btn-randomize" type="button" title="Change Name">
+                <span class="material-symbols-outlined" style="font-size:16px;">casino</span>
+                <span>Random</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="simple-benefits">
+            <span><span class="check">&check;</span> No account or sign up needed</span>
+            <span><span class="check">&check;</span> Simple 6-letter code</span>
+            <span><span class="check">&check;</span> Draw, write, and add shapes</span>
+            <span><span class="check">&check;</span> Download your drawing anytime</span>
+          </div>
+
+          <button id="instant-create-submit" class="btn-lime w-full" style="padding:14px;font-size:16px;">
+            <span class="material-symbols-outlined">add_circle</span>
+            <span>Start New Whiteboard</span>
+          </button>
         </div>
 
-        <div class="split-action-card create-card">
-          <!-- Form Side -->
-          <div class="action-form-side">
-            <h3>Start an Instant Session</h3>
-            <p class="desc">
-              Your room is created locally and connected through peer-to-peer WebSockets. You will get a unique 6-character code to share with anyone.
-            </p>
-
-            <div class="form-group">
-              <label for="landing-creator-nickname" class="form-label">Choose Your Nickname</label>
-              <div class="nickname-input-wrap">
-                <input id="landing-creator-nickname" class="input-field" placeholder="e.g. CobaltVoyager" maxlength="24">
-                <button id="btn-randomize-create" class="btn-randomize" type="button" title="Generate Random Alias">
-                  <span class="material-symbols-outlined" style="font-size:16px;">casino</span>
-                  <span>Random</span>
-                </button>
-              </div>
-            </div>
-
-            <div class="feature-check-list">
-              <span><span class="material-symbols-outlined check-icon">check_circle</span> No email or passwords required</span>
-              <span><span class="material-symbols-outlined check-icon">check_circle</span> 6-Character unambiguous room code</span>
-              <span><span class="material-symbols-outlined check-icon">check_circle</span> Real-time live cursors &amp; presence</span>
-              <span><span class="material-symbols-outlined check-icon">check_circle</span> Ephemeral memory (auto-cleans on exit)</span>
-            </div>
-
-            <button id="instant-create-submit" class="btn-lime w-full" style="padding:14px;font-size:16px;">
-              <span class="material-symbols-outlined">bolt</span>
-              <span>Launch Instant Room (Zero Login)</span>
-            </button>
-
-            <div class="privacy-notice">
-              <span class="material-symbols-outlined">verified_user</span>
-              <span>100% Free • End-to-End P2P Synced • No Account Needed</span>
-            </div>
-          </div>
-
-          <!-- Graphic Side -->
-          <div class="action-graphic-side">
-            <!-- Bespoke SVG Illustration: Instant Room Node Spawning -->
-            <svg class="action-svg-illustration" viewBox="0 0 320 280" fill="none">
-              <!-- Radial Core Ambient Glow -->
-              <circle cx="160" cy="140" r="100" fill="url(#coreGlow)" opacity="0.3"/>
-              
-              <!-- Orbital Rings -->
-              <circle cx="160" cy="140" r="75" stroke="#1558C9" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.7"/>
-              <circle cx="160" cy="140" r="110" stroke="#F4FF24" stroke-width="1" stroke-dasharray="2 8" opacity="0.4"/>
-              
-              <!-- Data Vector Beams -->
-              <path d="M160 140 L80 60" stroke="#F4FF24" stroke-width="2" stroke-linecap="round"/>
-              <path d="M160 140 L240 70" stroke="#1558C9" stroke-width="2" stroke-linecap="round"/>
-              <path d="M160 140 L90 210" stroke="#1558C9" stroke-width="2" stroke-linecap="round"/>
-              <path d="M160 140 L235 215" stroke="#F4FF24" stroke-width="2" stroke-linecap="round"/>
-
-              <!-- Outer Participant Nodes -->
-              <circle cx="80" cy="60" r="14" fill="#0a0f1c" stroke="#F4FF24" stroke-width="2"/>
-              <text x="80" y="64" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700" fill="#F4FF24" text-anchor="middle">P1</text>
-
-              <circle cx="240" cy="70" r="14" fill="#0a0f1c" stroke="#1558C9" stroke-width="2"/>
-              <text x="240" y="74" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">P2</text>
-
-              <circle cx="90" cy="210" r="14" fill="#0a0f1c" stroke="#1558C9" stroke-width="2"/>
-              <text x="90" y="214" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">P3</text>
-
-              <circle cx="235" cy="215" r="14" fill="#0a0f1c" stroke="#F4FF24" stroke-width="2"/>
-              <text x="235" y="219" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700" fill="#F4FF24" text-anchor="middle">P4</text>
-
-              <!-- Central Host Spawning Core -->
-              <circle cx="160" cy="140" r="32" fill="#030407" stroke="#F4FF24" stroke-width="2.5"/>
-              <polygon points="160,125 174,136 170,153 150,153 146,136" fill="#1558C9" opacity="0.6"/>
-              <circle cx="160" cy="140" r="8" fill="#F4FF24"/>
-              
-              <!-- Sparkles -->
-              <path d="M160 100 L160 106 M160 174 L160 180 M120 140 L126 140 M194 140 L200 140" stroke="#F4FF24" stroke-width="2" stroke-linecap="round"/>
-
-              <defs>
-                <radialGradient id="coreGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(160 140) rotate(90) scale(100)">
-                  <stop stop-color="#1558C9" stop-opacity="0.8"/>
-                  <stop offset="0.6" stop-color="#F4FF24" stop-opacity="0.3"/>
-                  <stop offset="1" stop-opacity="0"/>
-                </radialGradient>
-              </defs>
-            </svg>
-          </div>
+        <div class="card-visual">
+          <svg class="card-svg-graphic" viewBox="0 0 280 240" fill="none">
+            <circle cx="140" cy="120" r="70" fill="rgba(21, 88, 201, 0.15)"/>
+            <circle cx="140" cy="120" r="50" stroke="#1558C9" stroke-width="2" stroke-dasharray="4 6"/>
+            <circle cx="140" cy="120" r="26" fill="#030407" stroke="#F4FF24" stroke-width="3"/>
+            <circle cx="140" cy="120" r="8" fill="#F4FF24"/>
+            <!-- Radiating Peers -->
+            <circle cx="65" cy="65" r="14" fill="#0a0f1c" stroke="#F4FF24" stroke-width="2"/>
+            <circle cx="215" cy="70" r="14" fill="#0a0f1c" stroke="#1558C9" stroke-width="2"/>
+            <circle cx="75" cy="180" r="14" fill="#0a0f1c" stroke="#1558C9" stroke-width="2"/>
+            <circle cx="210" cy="180" r="14" fill="#0a0f1c" stroke="#F4FF24" stroke-width="2"/>
+            <line x1="140" y1="120" x2="65" y2="65" stroke="#F4FF24" stroke-width="2"/>
+            <line x1="140" y1="120" x2="215" y2="70" stroke="#1558C9" stroke-width="2"/>
+            <line x1="140" y1="120" x2="75" y2="180" stroke="#1558C9" stroke-width="2"/>
+            <line x1="140" y1="120" x2="210" y2="180" stroke="#F4FF24" stroke-width="2"/>
+          </svg>
         </div>
       </section>
 
       <!-- ========================================== -->
       <!-- SECTION 2: JOIN A ROOM                    -->
       <!-- ========================================== -->
-      <section id="join-room-section" class="join-room-section">
-        <div class="section-header">
-          <span class="section-tag">Direct Synchronization</span>
-          <h2>Join an Existing Room</h2>
-          <p>Received a 6-character code from a colleague or tutor? Enter it below to join the canvas immediately.</p>
+      <section id="join-room-section" class="room-feature-card card-join">
+        <div class="card-content">
+          <span class="section-tag">Enter Code</span>
+          <h3>Join a Room</h3>
+          <p class="card-desc">
+            Have a 6-letter room code from your friend, tutor, or coworker? Enter it below to hop straight into the board.
+          </p>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <label class="form-label" style="margin:0;">6-Letter Room Code</label>
+            <div style="display:flex;gap:8px;">
+              <button id="landing-paste-code" class="btn-secondary" style="padding:4px 10px;font-size:12px;">
+                <span class="material-symbols-outlined" style="font-size:14px;">content_paste</span>
+                <span>Paste</span>
+              </button>
+              <button id="landing-shuffle-code" class="btn-secondary" style="padding:4px 10px;font-size:12px;" title="Sample Code">
+                <span class="material-symbols-outlined" style="font-size:14px;">shuffle</span>
+                <span>Sample</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 6 Code Input Boxes -->
+          <div id="landing-code-container" class="landing-code-container">
+            <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
+            <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
+            <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
+            <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
+            <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
+            <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
+          </div>
+
+          <div class="form-group" style="margin-top:20px;">
+            <label for="landing-join-nickname" class="form-label">Your Name</label>
+            <div class="nickname-input-wrap">
+              <input id="landing-join-nickname" class="input-field" placeholder="Enter your name" maxlength="24">
+              <button id="btn-randomize-join" class="btn-randomize" type="button" title="Change Name">
+                <span class="material-symbols-outlined" style="font-size:16px;">casino</span>
+                <span>Random</span>
+              </button>
+            </div>
+          </div>
+
+          <button id="landing-join-submit" class="btn-cobalt w-full" style="padding:14px;font-size:16px;margin-top:14px;">
+            <span class="material-symbols-outlined">login</span>
+            <span>Join Whiteboard (------)</span>
+          </button>
         </div>
 
-        <div class="split-action-card join-card">
-          <!-- Form Side -->
-          <div class="action-form-side">
-            <h3>Enter 6-Character Room Code</h3>
-            <p class="desc">
-              No account creation needed. Enter the code and your display name to jump directly into the live session.
-            </p>
-
-            <div class="join-code-row">
-              <label class="form-label" style="margin-bottom:0;">Session Code</label>
-              <div style="display:flex;gap:8px;">
-                <button id="landing-paste-code" class="btn-secondary" style="padding:4px 10px;font-size:12px;">
-                  <span class="material-symbols-outlined" style="font-size:14px;">content_paste</span>
-                  <span>Paste</span>
-                </button>
-                <button id="landing-shuffle-code" class="btn-secondary" style="padding:4px 10px;font-size:12px;" title="Test Code">
-                  <span class="material-symbols-outlined" style="font-size:14px;">shuffle</span>
-                  <span>Sample</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- 6 Digits Container -->
-            <div id="landing-code-container" class="landing-code-container">
-              <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
-              <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
-              <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
-              <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
-              <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
-              <input type="text" class="landing-code-input" maxlength="1" autocomplete="off" spellcheck="false">
-            </div>
-
-            <div class="form-group" style="margin-top:20px;">
-              <label for="landing-join-nickname" class="form-label">Your Nickname</label>
-              <div class="nickname-input-wrap">
-                <input id="landing-join-nickname" class="input-field" placeholder="e.g. NeonVoyager" maxlength="24">
-                <button id="btn-randomize-join" class="btn-randomize" type="button" title="Generate Random Alias">
-                  <span class="material-symbols-outlined" style="font-size:16px;">casino</span>
-                  <span>Random</span>
-                </button>
-              </div>
-            </div>
-
-            <button id="landing-join-submit" class="btn-cobalt w-full" style="padding:14px;font-size:16px;margin-top:12px;">
-              <span class="material-symbols-outlined">login</span>
-              <span>Join Canvas (------)</span>
-            </button>
-
-            <div class="privacy-notice">
-              <span class="material-symbols-outlined">lock</span>
-              <span>Encrypted WebRTC P2P Data Channel • No Login Required</span>
-            </div>
-          </div>
-
-          <!-- Graphic Side -->
-          <div class="action-graphic-side">
-            <!-- Bespoke SVG Illustration: Peer Mesh Connection -->
-            <svg class="action-svg-illustration" viewBox="0 0 320 280" fill="none">
-              <!-- Background Grid -->
-              <pattern id="meshGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1" fill="#1558C9" opacity="0.3"/>
-              </pattern>
-              <rect width="320" height="280" fill="url(#meshGrid)"/>
-
-              <!-- Connection Lines -->
-              <line x1="60" y1="140" x2="160" y2="80" stroke="#1558C9" stroke-width="2" stroke-dasharray="4 4"/>
-              <line x1="60" y1="140" x2="160" y2="200" stroke="#1558C9" stroke-width="2" stroke-dasharray="4 4"/>
-              <line x1="160" y1="80" x2="260" y2="140" stroke="#F4FF24" stroke-width="2"/>
-              <line x1="160" y1="200" x2="260" y2="140" stroke="#F4FF24" stroke-width="2"/>
-              <line x1="160" y1="80" x2="160" y2="200" stroke="#1558C9" stroke-width="1.5"/>
-
-              <!-- Peer 1 (Connecting) -->
-              <circle cx="60" cy="140" r="24" fill="#030407" stroke="#1558C9" stroke-width="2"/>
-              <circle cx="60" cy="140" r="12" fill="#1558C9" opacity="0.4"/>
-              <text x="60" y="144" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">YOU</text>
-
-              <!-- Data Lock Badge in Center -->
-              <rect x="135" y="120" width="50" height="40" rx="8" fill="#0a0f1c" stroke="#F4FF24" stroke-width="1.5"/>
-              <path d="M152 133 V129 A8 8 0 0 1 168 129 V133" stroke="#F4FF24" stroke-width="2" fill="none"/>
-              <rect x="146" y="133" width="28" height="20" rx="4" fill="#1558C9"/>
-              <circle cx="160" cy="142" r="2.5" fill="#F4FF24"/>
-
-              <!-- Peer 2 (Relay Top) -->
-              <circle cx="160" cy="80" r="18" fill="#030407" stroke="#1558C9" stroke-width="2"/>
-              <circle cx="160" cy="80" r="8" fill="#1558C9"/>
-
-              <!-- Peer 3 (Relay Bottom) -->
-              <circle cx="160" cy="200" r="18" fill="#030407" stroke="#1558C9" stroke-width="2"/>
-              <circle cx="160" cy="200" r="8" fill="#1558C9"/>
-
-              <!-- Destination Room Host -->
-              <circle cx="260" cy="140" r="28" fill="#030407" stroke="#F4FF24" stroke-width="2.5"/>
-              <circle cx="260" cy="140" r="16" fill="#F4FF24" opacity="0.3"/>
-              <text x="260" y="144" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#F4FF24" text-anchor="middle">HOST</text>
-
-              <!-- Animated Pulse Marker -->
-              <circle cx="210" cy="110" r="4" fill="#F4FF24">
-                <animate attributeName="opacity" values="0.2;1;0.2" dur="2s" repeatCount="indefinite"/>
-              </circle>
-              <circle cx="110" cy="170" r="4" fill="#1558C9">
-                <animate attributeName="opacity" values="1;0.2;1" dur="2s" repeatCount="indefinite"/>
-              </circle>
-            </svg>
-          </div>
+        <div class="card-visual">
+          <svg class="card-svg-graphic" viewBox="0 0 280 240" fill="none">
+            <rect x="90" y="80" width="100" height="80" rx="12" fill="#0a0f1c" stroke="#1558C9" stroke-width="2"/>
+            <path d="M125 105 V 95 A 15 15 0 0 1 155 95 V 105" stroke="#F4FF24" stroke-width="3" fill="none"/>
+            <circle cx="140" cy="125" r="5" fill="#F4FF24"/>
+            <line x1="140" y1="130" x2="140" y2="142" stroke="#F4FF24" stroke-width="2"/>
+            <!-- Peer Nodes -->
+            <circle cx="45" cy="120" r="16" fill="#030407" stroke="#1558C9" stroke-width="2"/>
+            <text x="45" y="125" font-family="'Inter', sans-serif" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">YOU</text>
+            <circle cx="235" cy="120" r="16" fill="#030407" stroke="#F4FF24" stroke-width="2"/>
+            <text x="235" y="125" font-family="'Inter', sans-serif" font-size="10" font-weight="700" fill="#F4FF24" text-anchor="middle">ROOM</text>
+            <line x1="61" y1="120" x2="90" y2="120" stroke="#1558C9" stroke-width="2" stroke-dasharray="4 4"/>
+            <line x1="190" y1="120" x2="219" y2="120" stroke="#F4FF24" stroke-width="2"/>
+          </svg>
         </div>
       </section>
 
     </div>
 
-    <!-- Features Section -->
-    <section id="features" class="features-section">
-      <div class="section-header">
-        <span class="section-tag">High Performance</span>
-        <h2>Built for Instant Explanations</h2>
-        <p>Engineered with zero third-party framework bloat for maximum responsiveness and rock-solid synchronization.</p>
+    <!-- Friendly Simple Features -->
+    <section class="simple-features-section">
+      <div class="section-title-wrap">
+        <span class="section-tag">Simple &amp; Fast</span>
+        <h2>Why people love XplainerLive</h2>
+        <p>Everything you need to explain ideas visually, with zero hassle.</p>
       </div>
 
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon-wrap">
+      <div class="simple-features-grid">
+        <div class="simple-feature-box">
+          <div class="feature-pill-icon">
             <span class="material-symbols-outlined">bolt</span>
           </div>
-          <h3>Sub-15ms WebRTC Sync</h3>
-          <p>Drawing vectors, shapes, and movements sync across peer DataChannels directly with near-zero latency.</p>
+          <h4>Instant Sync</h4>
+          <p>Whatever you sketch, type, or erase appears on everyone's screen right away.</p>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon-wrap icon-cobalt">
-            <span class="material-symbols-outlined">draw</span>
+        <div class="simple-feature-box">
+          <div class="feature-pill-icon cobalt">
+            <span class="material-symbols-outlined">lock_open</span>
           </div>
-          <h3>Vector Whiteboard Engine</h3>
-          <p>Freehand drawing, rectangles, arrows, ellipses, diamonds, text, and eraser powered by 60FPS canvas renderer.</p>
+          <h4>No Account Needed</h4>
+          <p>Zero signups, passwords, or emails. Just open the link and start drawing.</p>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon-wrap">
-            <span class="material-symbols-outlined">no_accounts</span>
+        <div class="simple-feature-box">
+          <div class="feature-pill-icon">
+            <span class="material-symbols-outlined">devices</span>
           </div>
-          <h3>Zero Login Requirements</h3>
-          <p>No passwords, no account creation, no cookies, no tracking. Sessions exist only while participants are present.</p>
+          <h4>Works on Any Device</h4>
+          <p>Optimized for laptops, tablets, and smartphones. Smooth drawing anywhere.</p>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon-wrap icon-cobalt">
-            <span class="material-symbols-outlined">pin</span>
-          </div>
-          <h3>Instant 6-Character Codes</h3>
-          <p>Ambiguity-free alphanumeric codes (e.g. <code>X7K9Q2</code>) that eliminate confusion between O/0 and I/1.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon-wrap">
-            <span class="material-symbols-outlined">chat_bubble</span>
-          </div>
-          <h3>Integrated Team Chat</h3>
-          <p>Collapsible in-canvas chat tray with real-time presence indicators, unread badges, and XSS sanitization.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon-wrap icon-cobalt">
+        <div class="simple-feature-box">
+          <div class="feature-pill-icon cobalt">
             <span class="material-symbols-outlined">download</span>
           </div>
-          <h3>High-Res Vector Export</h3>
-          <p>Export your collaborative sessions to transparent PNG, scalable vector SVG, or complete scene graph JSON.</p>
+          <h4>Save Anytime</h4>
+          <p>Export your diagram as an image or vector file with one simple click.</p>
         </div>
-      </div>
-    </section>
-
-    <!-- How It Works Section -->
-    <section id="how-it-works" class="how-it-works-section">
-      <div class="section-header">
-        <span class="section-tag">Frictionless Workflow</span>
-        <h2>How It Works</h2>
-        <p>From zero to drawing collaboratively in 3 simple steps.</p>
-      </div>
-
-      <div class="steps-container">
-        <div class="step-card">
-          <div class="step-number-badge">01</div>
-          <h4>Create or Enter Code</h4>
-          <p>Click Launch Canvas or enter a 6-character room code from your host. No signups or logins required.</p>
-        </div>
-
-        <div class="step-card">
-          <div class="step-number-badge">02</div>
-          <h4>P2P Mesh Handshake</h4>
-          <p>WebSockets establish instantaneous WebRTC DataChannel connections directly between all participants.</p>
-        </div>
-
-        <div class="step-card">
-          <div class="step-number-badge">03</div>
-          <h4>Explain &amp; Understand</h4>
-          <p>Draw vectors, pan infinitely, chat live, and build shared visual understanding together in real-time.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Bottom CTA Section -->
-    <section class="cta-section">
-      <h2>Start drawing in 5 seconds flat.</h2>
-      <p>Instant collaboration. No downloads, no credit cards, zero friction.</p>
-      
-      <div class="cta-actions">
-        <a href="#create-room-section" class="btn-lime hero-cta-btn">
-          <span class="material-symbols-outlined">bolt</span>
-          <span>Create Instant Room</span>
-        </a>
-        <a href="#join-room-section" class="btn-secondary hero-cta-btn">
-          <span class="material-symbols-outlined">pin</span>
-          <span>Join Existing Room</span>
-        </a>
-      </div>
-
-      <div class="guarantee-strip">
-        <span><span class="check">✓</span> 100% Free &amp; Open</span>
-        <span><span class="check">✓</span> Zero Account / Zero Passwords</span>
-        <span><span class="check">✓</span> Ephemeral Privacy Guarantee</span>
       </div>
     </section>
 
     <!-- Footer -->
     <footer class="landing-footer">
-      <div class="footer-logo">
-        <span class="xplainer">XPlainer</span><span class="live">Live</span>
+      <div class="brand-name" style="font-size:18px;">
+        Xplainer<span class="live-accent">Live</span>
       </div>
-      <div>Designed with Midnight Black, Electric Cobalt Blue &amp; Acid Lime.</div>
-      <div>&copy; 2026 XPlainerLive • Pure Vanilla WebRTC Whiteboard</div>
+      <div>Draw &middot; Think &middot; Together</div>
+      <div>&copy; 2026 XplainerLive</div>
     </footer>
   </div>
 
@@ -539,14 +471,12 @@
     <div class="topbar">
       <div class="topbar-left">
         <div class="logo" style="display:flex;align-items:center;gap:8px;">
-          <div class="logo-badge" style="width:26px;height:26px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M4 4L20 20" stroke="#F4FF24" stroke-width="3" stroke-linecap="round"/>
-              <path d="M20 4L4 20" stroke="#1558C9" stroke-width="3" stroke-linecap="round"/>
-            </svg>
-          </div>
+          <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+            <path d="M12 28 C 6 22, 10 12, 18 10 C 26 8, 30 18, 24 26 C 18 34, 12 30, 22 34" stroke="#1558C9" stroke-width="4"/>
+            <path d="M26 8 L14 32" stroke="#F4FF24" stroke-width="4"/>
+          </svg>
           <span class="logo-text" style="font-weight:800;font-size:16px;">
-            <span style="color:#ffffff;">XPlainer</span><span style="color:var(--lime);">Live</span>
+            Xplainer<span style="color:#2972f4;">Live</span>
           </span>
         </div>
 
@@ -581,8 +511,8 @@
       
       <div id="empty-state" class="canvas-empty-state">
         <span class="material-symbols-outlined empty-icon">draw</span>
-        <h3>Your canvas is ready.</h3>
-        <p>Pick a tool from the toolbar to start explaining or brainstorming.</p>
+        <h3>Your whiteboard is ready.</h3>
+        <p>Pick a tool from the left toolbar to start sketching.</p>
       </div>
     </div>
 
@@ -633,7 +563,7 @@
       <button id="zoom-out" class="btn-icon" title="Zoom Out">
         <span class="material-symbols-outlined">zoom_out</span>
       </button>
-      <button id="fit-btn" class="btn-icon" title="Fit to Screen">
+      <button id="fit-btn" class="btn-icon" title="Reset View">
         <span class="material-symbols-outlined">center_focus_strong</span>
       </button>
       <button id="grid-toggle" class="btn-icon" title="Toggle Grid (G)">
@@ -770,21 +700,21 @@
 
   <!-- MODALS -->
 
-  <!-- Join Modal (Used for direct ?room=XXXXXX URLs or header link) -->
+  <!-- Join Modal -->
   <div id="join-modal" class="modal-overlay hidden">
     <div class="modal-content">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
         <div style="font-weight:800;font-size:20px;" class="logo">
-          <span style="color:#ffffff;">XPlainer</span><span style="color:var(--lime);">Live</span>
+          Xplainer<span style="color:#2972f4;">Live</span>
         </div>
         <div class="badge badge-connected">
-          <span class="material-symbols-outlined" style="font-size:16px;">lock</span>
-          <span>Zero Login</span>
+          <span class="material-symbols-outlined" style="font-size:16px;">lock_open</span>
+          <span>No Login Required</span>
         </div>
       </div>
 
-      <h2 style="margin:0 0 6px 0;font-size:22px;color:#ffffff;">Join Whiteboard Room</h2>
-      <p style="color:var(--on-surface-variant);margin:0 0 20px 0;font-size:14px;">Enter the 6-character room code shared by your host.</p>
+      <h2 style="margin:0 0 6px 0;font-size:22px;color:#ffffff;">Join a Whiteboard</h2>
+      <p style="color:var(--on-surface-variant);margin:0 0 20px 0;font-size:14px;">Enter the 6-letter room code shared by your friend or host.</p>
       
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <label class="form-label" style="margin-bottom:0;">Room Code</label>
@@ -803,15 +733,15 @@
         <input type="text" class="join-code-input" maxlength="1" autocomplete="off">
       </div>
       
-      <label class="form-label" style="margin-top:16px;">Your Nickname</label>
+      <label class="form-label" style="margin-top:16px;">Your Name</label>
       <div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
-        <div class="avatar" id="join-avatar-preview" style="background:var(--cobalt);color:#ffffff;">?</div>
-        <input id="join-nickname" class="input-field" placeholder="Enter nickname" maxlength="24">
+        <div class="avatar" id="join-avatar-preview" style="background:#1558C9;color:#ffffff;">?</div>
+        <input id="join-nickname" class="input-field" placeholder="Enter your name" maxlength="24">
       </div>
       
       <div style="margin:20px 0;font-size:12px;color:var(--on-surface-muted);text-align:center;">
-        <span class="material-symbols-outlined" style="font-size:14px;">shield</span>
-        Private ephemeral session • No login or account required
+        <span class="material-symbols-outlined" style="font-size:14px;">verified_user</span>
+        Private whiteboard &bull; No login or account needed
       </div>
       
       <div style="display:flex;gap:12px;">
@@ -824,11 +754,10 @@
   <!-- Nickname Modal for Creator (Fallback) -->
   <div id="nickname-modal" class="modal-overlay hidden">
     <div class="modal-content" style="max-width:420px;text-align:center;">
-      <h2 style="margin:0 0 8px 0;color:#ffffff;">Enter Display Nickname</h2>
-      <p style="color:var(--on-surface-variant);margin:0 0 20px 0;font-size:14px;">No account needed. How should peers see your live cursor?</p>
-      <input id="creator-nickname-input" class="input-field" placeholder="Nickname" style="margin-bottom:20px;text-align:center;font-size:18px;font-weight:700;">
+      <h2 style="margin:0 0 8px 0;color:#ffffff;">Enter Display Name</h2>
+      <p style="color:var(--on-surface-variant);margin:0 0 20px 0;font-size:14px;">No account needed. How should others see you on the board?</p>
+      <input id="creator-nickname-input" class="input-field" placeholder="Your Name" style="margin-bottom:20px;text-align:center;font-size:18px;font-weight:700;">
       <button id="creator-nickname-submit" class="btn-lime w-full" style="padding:12px;font-size:16px;">
-        <span class="material-symbols-outlined">bolt</span>
         <span>Enter Room</span>
       </button>
     </div>
@@ -838,8 +767,8 @@
   <div id="clear-modal" class="modal-overlay hidden">
     <div class="modal-content" style="max-width:420px;text-align:center;">
       <span class="material-symbols-outlined" style="font-size:48px;color:var(--error);margin-bottom:12px;">delete_sweep</span>
-      <h2 style="margin:0 0 8px 0;color:#ffffff;">Clear entire board?</h2>
-      <p style="color:var(--on-surface-variant);margin:0 0 24px 0;font-size:14px;">This will remove all drawings for everyone currently connected to this room.</p>
+      <h2 style="margin:0 0 8px 0;color:#ffffff;">Clear entire whiteboard?</h2>
+      <p style="color:var(--on-surface-variant);margin:0 0 24px 0;font-size:14px;">This will clear all drawings for everyone in this room.</p>
       <div style="display:flex;gap:12px;">
         <button id="clear-cancel" class="btn-secondary" style="flex:1;">Cancel</button>
         <button id="clear-confirm" class="btn-danger" style="flex:1;">Clear All</button>

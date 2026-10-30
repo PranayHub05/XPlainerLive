@@ -16,11 +16,8 @@ export function generateUserId() {
 }
 
 export function getRandomNickname() {
-  const adjectives = ['Neon', 'Cobalt', 'Lime', 'Cyber', 'Quantum', 'Hyper', 'Vector', 'Astral', 'Flash', 'Pixel', 'Sonic', 'Matrix', 'Pulse', 'Apex'];
-  const nouns = ['Scribe', 'Voyager', 'Pilot', 'Crafter', 'Sketcher', 'Coder', 'Architect', 'Spark', 'Phantom', 'Node', 'Nexus', 'Shaper', 'Ghost', 'Rider'];
-  const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
-  const noun = nouns[Math.floor(Math.random() * nouns.length)];
-  return `${adj}${noun}`;
+  const names = ['Pranay', 'Suhana', 'Arjun', 'Alex', 'Sam', 'Maya', 'Liam', 'Zoe', 'Leo', 'Elena', 'Lucas', 'Noah', 'Mia', 'Kai', 'Rohan', 'Ananya'];
+  return names[Math.floor(Math.random() * names.length)];
 }
 
 export function generateColor(existingColors = []) {
