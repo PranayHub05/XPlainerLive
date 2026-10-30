@@ -3,7 +3,7 @@ import { getState, setState, resetState, subscribe } from './state.js';
 import { connectWS, sendWS, getWSUrl, onWSMessage, disconnectWS } from './websocket.js';
 import { initWebRTC, closeAllPeers, createPeerConnection } from './webrtc.js';
 import { showModal, hideModal, showView, showToast } from './ui.js';
-import { setupWorkspace } from './app.js';
+import { setupWorkspace, teardownWorkspace } from './app.js';
 import { getTimestamp, getRandomNickname, generateRoomCode, generateUserId, generateColor } from './utils.js';
 
 let unsubs = [];
@@ -263,6 +263,7 @@ function setupRoomListeners() {
 }
 
 export function leaveRoom() {
+  teardownWorkspace();
   if (pendingFallbackTimer) {
     clearTimeout(pendingFallbackTimer);
     pendingFallbackTimer = null;

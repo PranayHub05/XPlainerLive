@@ -2,7 +2,7 @@ import { getState, setState } from './state.js';
 import { initUI, showView, showModal } from './ui.js';
 import { joinRoom } from './room.js';
 import { initWhiteboard, onBoardOperation, getBoardData, setObjectsFromSync, addObject, updateObject, deleteObject, moveObject, clearBoard } from './whiteboard.js';
-import { initTools, onDrawingStatusChange } from './tools.js';
+import { initTools, onDrawingStatusChange, setActiveTool } from './tools.js';
 import { initHistory } from './history.js';
 import { initRenderer } from './renderer.js';
 import { sendToAllPeers, onDataMessage } from './webrtc.js';
@@ -14,6 +14,7 @@ import { setChatOpen } from './chat.js';
 import { initBackground, stopBackground } from './background.js';
 
 let isInitialized = false;
+let isWorkspaceSetup = false;
 
 export function init() {
   if (isInitialized) return;
@@ -51,7 +52,7 @@ export function init() {
   
   window.onerror = (msg, url, lineNo, columnNo, error) => {
     import('./ui.js').then(module => {
-      module.showToast('An error occurred. See console for details.', 'error');
+      module.showToast('Notice: ' + (msg || 'Error caught'), 'info');
     });
     return false;
   };
@@ -70,6 +71,12 @@ export function setupWorkspace() {
   stopBackground();
   showView('workspace-view');
   
+  if (isWorkspaceSetup) {
+    import('./renderer.js').then(r => r.requestRender());
+    return;
+  }
+  isWorkspaceSetup = true;
+
   const canvasContainer = document.getElementById('canvas-container');
   const canvas = document.getElementById('whiteboard-canvas');
   
@@ -79,6 +86,9 @@ export function setupWorkspace() {
   initHistory();
   initCursorSync();
   initPresence();
+  
+  // Default to Pen tool so users can sketch immediately
+  setActiveTool('pen');
   
   // Handlers for local actions -> send to peers
   onBoardOperation((op) => {
@@ -95,7 +105,6 @@ export function setupWorkspace() {
   onDataMessage(DataMessageType.BOARD_OP, (msg) => {
     const opType = msg.opType || msg.type;
     const { objectId, data } = msg;
-    // Apply remotely, do NOT push to local history stack
     switch (opType) {
       case 'create':
         if (data) addObject(data, false);
@@ -117,6 +126,11 @@ export function setupWorkspace() {
   onWSMessage(MessageType.BOARD_CLEAR, () => {
     clearBoard(false);
   });
+}
+
+export function teardownWorkspace() {
+  isWorkspaceSetup = false;
+  stopCursorBroadcast();
 }
 
 // Auto-run when DOM is ready

@@ -5,7 +5,7 @@ import { screenToWorld, setCamera, getCamera, requestRender } from './renderer.j
 import { pushAction } from './history.js';
 
 let previewObject = null;
-let activeTool = 'select';
+let activeTool = 'pen';
 let containerEl;
 let cleanupFn = null;
 let drawingStatusListeners = [];
@@ -60,12 +60,17 @@ export function getActiveTool() {
 }
 
 function updateCursor() {
-  if (containerEl) {
+  if (containerEl && TOOLS[activeTool]) {
     containerEl.style.cursor = TOOLS[activeTool].cursor || 'default';
   }
 }
 
 export function initTools(canvas, container) {
+  if (cleanupFn) {
+    cleanupFn();
+    cleanupFn = null;
+  }
+
   containerEl = container;
   updateCursor();
   
@@ -91,7 +96,7 @@ export function initTools(canvas, container) {
     }
     
     const state = getState();
-    const user = state.localUser;
+    const user = state.localUser || { id: 'local', color: '#1558C9' };
     
     switch (activeTool) {
       case 'select': {
@@ -174,7 +179,6 @@ export function initTools(canvas, container) {
       case 'text': {
         const hitObj = getObjectAtPoint(startWorldPoint.x, startWorldPoint.y);
         if (hitObj && hitObj.type === 'text') {
-           // Enter edit mode for existing text
            openTextEditor(hitObj);
         } else {
            const newText = {
@@ -202,9 +206,6 @@ export function initTools(canvas, container) {
     emitLocalCursorMove(worldPoint.x, worldPoint.y);
     
     if (!isPointerDown) {
-      if (activeTool === 'select') {
-         // Could check cursor hover over objects here
-      }
       return;
     }
     
@@ -246,7 +247,7 @@ export function initTools(canvas, container) {
       case 'pen': {
         if (currentStroke) {
           const dist = Math.hypot(worldPoint.x - lastWorldPoint.x, worldPoint.y - lastWorldPoint.y);
-          if (dist > 3) {
+          if (dist >= 1) {
             currentStroke.points.push({ x: worldPoint.x, y: worldPoint.y });
             requestRender();
           }
@@ -311,7 +312,7 @@ export function initTools(canvas, container) {
       return;
     }
     
-    const user = getState().localUser;
+    const user = getState().localUser || { id: 'local' };
     
     switch (activeTool) {
       case 'select': {
@@ -344,7 +345,7 @@ export function initTools(canvas, container) {
         break;
       }
       case 'pen': {
-        if (currentStroke && currentStroke.points.length > 1) {
+        if (currentStroke && currentStroke.points.length >= 1) {
           addObject(currentStroke);
           pushAction({ type: 'create', objectId: currentStroke.id, after: currentStroke, userId: user.id });
         }
@@ -359,12 +360,11 @@ export function initTools(canvas, container) {
       case 'ellipse':
       case 'diamond': {
         if (previewObject) {
-          // Check if it's too small
           let isValid = false;
           if (activeTool === 'line' || activeTool === 'arrow') {
-            isValid = Math.hypot(previewObject.x2 - previewObject.x1, previewObject.y2 - previewObject.y1) > 2;
+            isValid = Math.hypot(previewObject.x2 - previewObject.x1, previewObject.y2 - previewObject.y1) >= 1;
           } else {
-            isValid = previewObject.width > 2 && previewObject.height > 2;
+            isValid = previewObject.width >= 1 && previewObject.height >= 1;
           }
           
           if (isValid) {
@@ -381,6 +381,7 @@ export function initTools(canvas, container) {
   
   const openTextEditor = (textObj, isNew = false) => {
     const camera = getCamera();
+    const rect = containerEl.getBoundingClientRect();
     const sx = textObj.x * camera.zoom + camera.x;
     const sy = textObj.y * camera.zoom + camera.y;
     
@@ -459,7 +460,7 @@ export function initTools(canvas, container) {
       case 'escape':
         deselectAll();
         setPreviewObject(null);
-        if (activeTool !== 'select') setActiveTool('select');
+        if (activeTool !== 'pen') setActiveTool('pen');
         break;
       case 'delete':
       case 'backspace': {
@@ -498,9 +499,13 @@ export function initTools(canvas, container) {
     let newZoom = camera.zoom * zoomAmount;
     newZoom = Math.max(0.1, Math.min(newZoom, 5));
     
+    const rect = containerEl.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    
     const worldPoint = screenToWorld(e.clientX, e.clientY);
-    const newCameraX = e.clientX - worldPoint.x * newZoom;
-    const newCameraY = e.clientY - worldPoint.y * newZoom;
+    const newCameraX = mouseX - worldPoint.x * newZoom;
+    const newCameraY = mouseY - worldPoint.y * newZoom;
     
     setCamera({ x: newCameraX, y: newCameraY, zoom: newZoom });
   };
@@ -535,14 +540,14 @@ export function onLocalCursorMove(cb) {
 }
 
 function emitDrawingStart(x, y) {
-  const user = getState().localUser;
+  const user = getState().localUser || { id: 'local' };
   for (const cb of drawingStatusListeners) {
     cb({ type: 'drawingStart', userId: user.id, x, y, nickname: user.nickname, color: user.color });
   }
 }
 
 function emitDrawingEnd() {
-  const user = getState().localUser;
+  const user = getState().localUser || { id: 'local' };
   for (const cb of drawingStatusListeners) {
     cb({ type: 'drawingEnd', userId: user.id });
   }
@@ -551,7 +556,7 @@ function emitDrawingEnd() {
 let lastCursorEmit = 0;
 function emitLocalCursorMove(x, y) {
   const now = Date.now();
-  if (now - lastCursorEmit > 33) { // ~30fps
+  if (now - lastCursorEmit > 33) {
     for (const cb of localCursorListeners) {
       cb({ x, y });
     }

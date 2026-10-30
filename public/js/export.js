@@ -1,13 +1,17 @@
 import { getState } from './state.js';
 import { renderAllObjects } from './renderer.js';
 import { getObjectBounds } from './whiteboard.js';
+import { showToast } from './ui.js';
 
 export function exportPNG() {
   const state = getState();
-  const objectsMap = state.board.objects;
+  const objectsMap = state.board?.objects || {};
   const objects = Object.values(objectsMap).sort((a, b) => a.createdAt - b.createdAt);
   
-  if (objects.length === 0) return;
+  if (objects.length === 0) {
+    showToast('Sketch something on the board first!', 'info', 2000);
+    return;
+  }
   
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const obj of objects) {
@@ -18,21 +22,22 @@ export function exportPNG() {
     if (bounds.y + bounds.height > maxY) maxY = bounds.y + bounds.height;
   }
   
-  const padding = 20;
+  const padding = 30;
   minX -= padding;
   minY -= padding;
   maxX += padding;
   maxY += padding;
   
-  const width = maxX - minX;
-  const height = maxY - minY;
+  const width = Math.max(100, maxX - minX);
+  const height = Math.max(100, maxY - minY);
   
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext('2d');
   
-  ctx.fillStyle = '#090e1a';
+  // Midnight black background
+  ctx.fillStyle = '#030407';
   ctx.fillRect(0, 0, width, height);
   
   ctx.save();
@@ -41,15 +46,21 @@ export function exportPNG() {
   ctx.restore();
   
   canvas.toBlob((blob) => {
-    downloadBlob(blob, `xplainerlive-board-${Date.now()}.png`);
+    if (blob) {
+      downloadBlob(blob, `xplainerlive-${Date.now()}.png`);
+      showToast('Whiteboard exported as PNG!', 'success', 2500);
+    }
   });
 }
 
 export function exportSVG() {
   const state = getState();
-  const objects = Object.values(state.board.objects).sort((a, b) => a.createdAt - b.createdAt);
+  const objects = Object.values(state.board?.objects || {}).sort((a, b) => a.createdAt - b.createdAt);
   
-  if (objects.length === 0) return;
+  if (objects.length === 0) {
+    showToast('Sketch something on the board first!', 'info', 2000);
+    return;
+  }
   
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const obj of objects) {
@@ -60,17 +71,17 @@ export function exportSVG() {
     if (bounds.y + bounds.height > maxY) maxY = bounds.y + bounds.height;
   }
   
-  const padding = 20;
+  const padding = 30;
   minX -= padding;
   minY -= padding;
   maxX += padding;
   maxY += padding;
   
-  const width = maxX - minX;
-  const height = maxY - minY;
+  const width = Math.max(100, maxX - minX);
+  const height = Math.max(100, maxY - minY);
   
   let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${width} ${height}" width="${width}" height="${height}">
-<rect x="${minX}" y="${minY}" width="${width}" height="${height}" fill="#090e1a"/>\n`;
+<rect x="${minX}" y="${minY}" width="${width}" height="${height}" fill="#030407"/>\n`;
   
   for (const obj of objects) {
     const stroke = obj.stroke || '#F4FF24';
@@ -93,7 +104,7 @@ export function exportSVG() {
         svgContent += `<rect x="${obj.x}" y="${obj.y}" width="${obj.width}" height="${obj.height}" ${styleAttr}/>\n`;
         break;
       case 'ellipse':
-        svgContent += `<ellipse cx="${obj.x + obj.width/2}" cy="${obj.y + obj.height/2}" rx="${obj.width/2}" ry="${obj.height/2}" ${styleAttr}/>\n`;
+        svgContent += `<ellipse cx="${obj.x + obj.width/2}" cy="${obj.y + obj.height/2}" rx="${Math.max(1, obj.width/2)}" ry="${Math.max(1, obj.height/2)}" ${styleAttr}/>\n`;
         break;
       case 'diamond':
         svgContent += `<polygon points="${obj.x + obj.width/2},${obj.y} ${obj.x + obj.width},${obj.y + obj.height/2} ${obj.x + obj.width/2},${obj.y + obj.height} ${obj.x},${obj.y + obj.height/2}" ${styleAttr}/>\n`;
@@ -135,20 +146,30 @@ export function exportSVG() {
   svgContent += `</svg>`;
   
   const blob = new Blob([svgContent], { type: 'image/svg+xml' });
-  downloadBlob(blob, `xplainerlive-board-${Date.now()}.svg`);
+  downloadBlob(blob, `xplainerlive-${Date.now()}.svg`);
+  showToast('Whiteboard exported as SVG!', 'success', 2500);
 }
 
 export function exportJSON() {
   const state = getState();
+  const objects = Object.values(state.board?.objects || {});
+  
+  if (objects.length === 0) {
+    showToast('Sketch something on the board first!', 'info', 2000);
+    return;
+  }
+
   const data = {
     version: '1.0',
     exportedAt: Date.now(),
-    objects: Object.values(state.board.objects)
+    roomCode: state.room?.code,
+    objects: objects
   };
   
   const jsonString = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonString], { type: 'application/json' });
-  downloadBlob(blob, `xplainerlive-board-${Date.now()}.json`);
+  downloadBlob(blob, `xplainerlive-${state.room?.code || 'board'}-${Date.now()}.json`);
+  showToast('Whiteboard exported as JSON!', 'success', 2500);
 }
 
 function downloadBlob(blob, filename) {

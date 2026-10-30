@@ -492,6 +492,22 @@
       </div>
 
       <div class="topbar-right">
+        <!-- Integrated Export Actions in Topbar -->
+        <div class="export-actions">
+          <button id="export-png" class="btn-secondary" style="padding:6px 12px;font-size:12px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">image</span>
+            <span>PNG</span>
+          </button>
+          <button id="export-json" class="btn-secondary" style="padding:6px 12px;font-size:12px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">code</span>
+            <span>JSON</span>
+          </button>
+          <button id="clear-btn" class="btn-danger" style="padding:6px 12px;font-size:12px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">delete_sweep</span>
+            <span>Clear</span>
+          </button>
+        </div>
+
         <div id="participants-container" class="avatar-stack"></div>
         <button id="share-btn" class="btn-primary" style="padding:8px 14px;font-size:13px;">
           <span class="material-symbols-outlined" style="font-size:18px;">share</span>
@@ -512,19 +528,19 @@
       <div id="empty-state" class="canvas-empty-state">
         <span class="material-symbols-outlined empty-icon">draw</span>
         <h3>Your whiteboard is ready.</h3>
-        <p>Pick a tool from the left toolbar to start sketching.</p>
+        <p>Pick a tool from the toolbar to start sketching.</p>
       </div>
     </div>
 
     <!-- Floating Tools Toolbar -->
     <aside class="toolbar" id="toolbar">
-      <button id="tool-select" class="btn-icon active" title="Select (V)" data-tool="select">
+      <button id="tool-select" class="btn-icon" title="Select (V)" data-tool="select">
         <span class="material-symbols-outlined">near_me</span>
       </button>
       <button id="tool-hand" class="btn-icon" title="Hand / Pan (H)" data-tool="hand">
         <span class="material-symbols-outlined">pan_tool</span>
       </button>
-      <button id="tool-pen" class="btn-icon" title="Pen (P)" data-tool="pen">
+      <button id="tool-pen" class="btn-icon active" title="Pen (P)" data-tool="pen">
         <span class="material-symbols-outlined">edit</span>
       </button>
       <button id="tool-eraser" class="btn-icon" title="Eraser (E)" data-tool="eraser">
@@ -596,21 +612,7 @@
       </div>
     </div>
 
-    <!-- Top Right Export & Clear Bar -->
-    <div class="export-bar">
-      <button id="export-png" class="btn-secondary" style="padding:8px 14px;font-size:13px;">
-        <span class="material-symbols-outlined" style="font-size:18px;">image</span>
-        <span>PNG</span>
-      </button>
-      <button id="export-json" class="btn-secondary" style="padding:8px 14px;font-size:13px;">
-        <span class="material-symbols-outlined" style="font-size:18px;">code</span>
-        <span>JSON</span>
-      </button>
-      <button id="clear-btn" class="btn-danger" style="padding:8px 14px;font-size:13px;">
-        <span class="material-symbols-outlined" style="font-size:18px;">delete_sweep</span>
-        <span>Clear</span>
-      </button>
-    </div>
+
 
     <!-- Live Chat Panel -->
     <aside id="chat-panel" class="chat-panel">

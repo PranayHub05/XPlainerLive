@@ -13,6 +13,16 @@ export function initRenderer(canvas, container) {
   canvasEl = canvas;
   containerEl = container;
   if (!canvas || typeof canvas.getContext !== 'function') return () => {};
+
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+  if (resizeObserver) {
+    resizeObserver.disconnect();
+    resizeObserver = null;
+  }
+
   ctx = canvas.getContext('2d', { alpha: false });
   
   resize();
@@ -22,24 +32,37 @@ export function initRenderer(canvas, container) {
   });
   resizeObserver.observe(container);
   
+  isDirty = true;
   renderLoop();
   
   return () => {
-    if (animationFrameId) cancelAnimationFrame(animationFrameId);
-    if (resizeObserver) resizeObserver.disconnect();
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+    }
+    if (resizeObserver) {
+      resizeObserver.disconnect();
+      resizeObserver = null;
+    }
   };
 }
 
 function resize() {
+  if (!containerEl || !canvasEl || !ctx) return;
   const dpr = window.devicePixelRatio || 1;
   const rect = containerEl.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) return;
   
-  canvasEl.width = rect.width * dpr;
-  canvasEl.height = rect.height * dpr;
-  canvasEl.style.width = `${rect.width}px`;
-  canvasEl.style.height = `${rect.height}px`;
+  const targetW = Math.round(rect.width * dpr);
+  const targetH = Math.round(rect.height * dpr);
+
+  if (canvasEl.width !== targetW || canvasEl.height !== targetH) {
+    canvasEl.width = targetW;
+    canvasEl.height = targetH;
+    canvasEl.style.width = `${rect.width}px`;
+    canvasEl.style.height = `${rect.height}px`;
+  }
   
-  ctx.scale(dpr, dpr);
   requestRender();
 }
 
@@ -61,7 +84,7 @@ export function requestRender() {
 }
 
 export function getCamera() {
-  return getState().camera;
+  return getState().camera || { x: 0, y: 0, zoom: 1 };
 }
 
 export function setCamera(camera) {
@@ -69,8 +92,11 @@ export function setCamera(camera) {
   requestRender();
 }
 
-export function screenToWorld(sx, sy) {
+export function screenToWorld(clientX, clientY) {
   const camera = getCamera();
+  const rect = containerEl ? containerEl.getBoundingClientRect() : { left: 0, top: 0 };
+  const sx = clientX - rect.left;
+  const sy = clientY - rect.top;
   return {
     x: (sx - camera.x) / camera.zoom,
     y: (sy - camera.y) / camera.zoom
@@ -86,11 +112,16 @@ export function worldToScreen(wx, wy) {
 }
 
 function performRender() {
+  if (!ctx || !containerEl || !canvasEl) return;
   const state = getState();
-  const camera = state.camera;
+  const camera = state.camera || { x: 0, y: 0, zoom: 1 };
   const rect = containerEl.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
   
-  // Midnight Black canvas
+  // Set clean matrix scaling by DPR every frame (prevents exponential scaling glitches)
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  // Midnight Black canvas background
   ctx.fillStyle = '#030407';
   ctx.fillRect(0, 0, rect.width, rect.height);
   
@@ -98,7 +129,7 @@ function performRender() {
   ctx.translate(camera.x, camera.y);
   ctx.scale(camera.zoom, camera.zoom);
   
-  if (state.board.gridEnabled) {
+  if (state.board?.gridEnabled) {
     renderGrid(rect, camera);
   }
   
@@ -108,7 +139,7 @@ function performRender() {
   const previewObj = getPreviewObject();
   if (previewObj) {
     ctx.save();
-    ctx.globalAlpha = previewObj.opacity !== undefined ? previewObj.opacity * 0.7 : 0.7;
+    ctx.globalAlpha = previewObj.opacity !== undefined ? previewObj.opacity * 0.8 : 0.8;
     renderObject(ctx, previewObj);
     ctx.restore();
   }
@@ -183,7 +214,7 @@ export function renderRectangle(context, obj) {
 
 export function renderEllipse(context, obj) {
   context.beginPath();
-  context.ellipse(obj.x + obj.width/2, obj.y + obj.height/2, obj.width/2, obj.height/2, 0, 0, Math.PI * 2);
+  context.ellipse(obj.x + obj.width/2, obj.y + obj.height/2, Math.max(1, obj.width/2), Math.max(1, obj.height/2), 0, 0, Math.PI * 2);
   if (obj.fill && obj.fill !== 'transparent') context.fill();
   if (obj.stroke && obj.stroke !== 'transparent') context.stroke();
 }
@@ -227,6 +258,14 @@ export function renderArrow(context, obj) {
 export function renderStroke(context, obj) {
   if (!obj.points || obj.points.length === 0) return;
   
+  if (obj.points.length === 1) {
+    context.beginPath();
+    context.arc(obj.points[0].x, obj.points[0].y, Math.max(1.5, (obj.strokeWidth || 2) / 2), 0, Math.PI * 2);
+    context.fillStyle = obj.stroke || '#F4FF24';
+    context.fill();
+    return;
+  }
+
   context.beginPath();
   context.moveTo(obj.points[0].x, obj.points[0].y);
   for (let i = 1; i < obj.points.length; i++) {
